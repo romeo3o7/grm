@@ -5,11 +5,12 @@ printerr() {
 	printf '%s\n' "$1" >&2
 }
 
-metadatafile=$(cat "/home/romeo/Programs/brave/update/meta") || { printerr "meta file not found"; exit 1; }
+metadatafile=$(cat "/home/romeo/Programs/brave/metaGRUfile") || { printerr "meta file not found"; exit 1; }
 owner=$(echo "$metadatafile" | grep "Owner:"   | sed 's|Owner:||'   | tr -d ' \r\n') || exit 1
 project=$(echo "$metadatafile" | grep "Project:" | sed 's|Project:||' | tr -d ' \r\n') || exit 1
 perversion=$(echo "$metadatafile" | grep "Version:" | sed 's|Version:||' | tr -d ' \r\n') || exit 1
 
+echo "$project: querying For latest release"
 github_json=$(curl -fsS "https://api.github.com/repos/$owner/$project/releases/latest") || {
 	printerr "Error: No response from github";
 	exit 1;
@@ -19,7 +20,12 @@ latversion=$(jq -r '.tag_name // empty' <<< "$github_json")
 [[ -z $latversion ]] && { printerr "Error: Could not get latest version for $project"; exit 1; }
 [[ "$latversion" == "$perversion" ]] && { printerr "$project is up to date. version:$latversion"; exit 2; }
 
-printf 'New Version found:%s\n' "$latversion"
+printf 'Current Version:%s, New Version found:%s\n' "$perversion" "$latversion"
+while true; do
+	read -r -p "Should we Update it? [y/n] " reply || exit 1
+	[[ "$reply" == n ]] || [[ "$reply" == q ]] && exit 0
+	[[ "$reply" == y ]] && break
+done
 sep_l='(^|[^[:alnum:]])'
 sep_r='([^[:alnum:]]|$)'
 arch_filter=
@@ -49,7 +55,7 @@ else
 		printf '%2d) %s\n' "$((i + 1))" "${lines[i]%%$'\t'*}" >&2
 	done
 	while true; do
-		read -r -p "Pick [1-${#lines[@]}], q to quit: " reply || exit 1
+		read -r -p "Pick An Asset To Download [1-${#lines[@]}], q to quit: " reply || exit 1
 		[[ $reply == q ]] && exit 0
 		if [[ $reply =~ ^[0-9]+$ ]] && (( 10#$reply >= 1 && 10#$reply <= ${#lines[@]} )); then
 			choice=$((10#$reply - 1))
@@ -62,3 +68,47 @@ fi
 selected=${lines[choice]}
 asset_name=${selected%%$'\t'*}
 asset_url=${selected#*$'\t'}
+
+while true; do
+	read -r -p "Selected Asset Name:$asset_name is that ok? [y/n] " reply || exit 1
+	[[ $reply == n ]] || [[ $reply == q ]] && exit 0
+	[[ $reply == y ]] && break
+	printerr "try again"
+done
+
+temp=$(mktemp -d)
+temppath="$temp"/"$asset_name"
+
+echo "installing to $temp"
+curl -fL "$asset_url" -o $temppath || {
+	printerr "Error: failed to download $asset_name";
+	exit 1;
+}
+
+newpath="$HOME/Programs/$project-temp/"
+metafilepath="$newpath"/metaGRUfile
+
+case "${asset_name,,}" in
+	*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.tar.bz2)
+		#implement a tar extractor
+	;;
+	*.zip)
+		mkdir -p "$newpath" || {
+			printerr "creating a new path: $newpath failed"
+			exit 1
+		}
+		unzip -o "$temppath" -d "$newpath" > /dev/null || {
+			printerr "unziping $temppath failed"
+			exit 1
+		}
+		touch "$metafilepath" || {
+			printerr "creating meta file failed"
+			exit 1
+		}
+		printf 'Owner:%s\nProject:%s\nVersion:%s\n' "$owner" "$project" "$latversion" > "$metafilepath" || {
+			printerr "failed to Write to metadata file"
+			exit 1
+		}
+	;;
+	*) printerr "unsupported archive type: $asset_name"; exit 1 ;;
+esac
