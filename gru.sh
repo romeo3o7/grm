@@ -4,8 +4,8 @@ set -euo pipefail
 printerr() {
 	printf '%s\n' "$1" >&2
 }
-
-metadatafile=$(cat "/home/romeo/Programs/brave/metaGRUfile") || { printerr "meta file not found"; exit 1; }
+programs_dir="$HOME/Programs"
+metadatafile=$(cat "$programs_dir/brave-browser/metaGRUfile") || { printerr "meta file not found"; exit 1; }
 owner=$(echo "$metadatafile" | grep "Owner:"   | sed 's|Owner:||'   | tr -d ' \r\n') || exit 1
 project=$(echo "$metadatafile" | grep "Project:" | sed 's|Project:||' | tr -d ' \r\n') || exit 1
 perversion=$(echo "$metadatafile" | grep "Version:" | sed 's|Version:||' | tr -d ' \r\n') || exit 1
@@ -26,6 +26,7 @@ while true; do
 	[[ "$reply" == n ]] || [[ "$reply" == q ]] && exit 0
 	[[ "$reply" == y ]] && break
 done
+ # -------- instalation bits
 sep_l='(^|[^[:alnum:]])'
 sep_r='([^[:alnum:]]|$)'
 arch_filter=
@@ -80,35 +81,50 @@ temp=$(mktemp -d)
 temppath="$temp"/"$asset_name"
 
 echo "installing to $temp"
-curl -fL "$asset_url" -o $temppath || {
+curl -fL "$asset_url" -o "$temppath" || {
 	printerr "Error: failed to download $asset_name";
 	exit 1;
 }
 
-newpath="$HOME/Programs/$project-temp/"
-metafilepath="$newpath"/metaGRUfile
+newpath=$(mktemp -d "$programs_dir/${project}.XXXXXX") || {
+    printerr "Failed to create staging directory"
+    exit 1
+}
 
 case "${asset_name,,}" in
 	*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.tar.bz2)
-		#implement a tar extractor
+	tar -xf "$temppath" -C "$newpath" || {
+            printerr "Extracting $temppath failed"
+            exit 1
+	}
 	;;
 	*.zip)
-		mkdir -p "$newpath" || {
-			printerr "creating a new path: $newpath failed"
-			exit 1
-		}
 		unzip -o "$temppath" -d "$newpath" > /dev/null || {
 			printerr "unziping $temppath failed"
-			exit 1
-		}
-		touch "$metafilepath" || {
-			printerr "creating meta file failed"
-			exit 1
-		}
-		printf 'Owner:%s\nProject:%s\nVersion:%s\n' "$owner" "$project" "$latversion" > "$metafilepath" || {
-			printerr "failed to Write to metadata file"
 			exit 1
 		}
 	;;
 	*) printerr "unsupported archive type: $asset_name"; exit 1 ;;
 esac
+
+metafilepath="$newpath"/metaGRUfile
+printf 'Owner:%s\nProject:%s\nVersion:%s\n' "$owner" "$project" "$latversion" > "$metafilepath" || {
+	printerr "failed to Write to metadata file"
+	exit 1
+}
+
+program_path="$programs_dir/$project"
+del $program_path || {
+	printerr "failed to delete old version"
+	exit 1
+}
+
+mv "$newpath" "$program_path" || {
+	printerr "failed to move new version"
+	del --restore "$program_path" || {
+		printerr "restoration failed"
+		exit 1
+	}
+	exit 1
+}
+
