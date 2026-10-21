@@ -5,9 +5,7 @@ printerr() {
 	printf '%s\n' "$1" >&2
 }
 programs_dir="$HOME/Programs"
-echo "$programs_dir"
-for dir in $programs_dir/*; do
-	echo "$dir"
+for dir in "$programs_dir"/*; do
 	[[ -f "$dir/metaGRUfile" ]] || continue
 	metadatafile=$(cat "$dir/metaGRUfile") || { printerr "meta file not found"; exit 1; }
 	owner=$(echo "$metadatafile" | grep "Owner:"   | sed 's|Owner:||'   | tr -d ' \r\n') || exit 1
@@ -28,7 +26,7 @@ for dir in $programs_dir/*; do
 
 	while true; do
 		read -r -p "Should we Update? [y/n] " reply || exit 1
-		[[ "$reply" == n ]] || [[ "$reply" == q ]] && continue
+		[[ "$reply" == n ]] || [[ "$reply" == q ]] && continue 2
 		[[ "$reply" == y ]] && break
 	done
 
@@ -63,7 +61,7 @@ for dir in $programs_dir/*; do
 		done
 		while true; do
 			read -r -p "Pick An Asset To Download [1-${#lines[@]}], q to quit: " reply || exit 1
-			[[ $reply == q ]] && continue
+			[[ $reply == q ]] && continue 2
 			if [[ $reply =~ ^[0-9]+$ ]] && (( 10#$reply >= 1 && 10#$reply <= ${#lines[@]} )); then
 				choice=$((10#$reply - 1))
 				break
@@ -120,7 +118,7 @@ for dir in $programs_dir/*; do
 	}
 
 	program_path="$programs_dir/$project"
-	del $program_path || {
+	del "$program_path" || {
 		printerr "failed to delete old version"
 		exit 1
 	}
