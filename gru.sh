@@ -153,6 +153,7 @@ parse_github_url() {
 install_from_url() {
 	local url=$1
 	local owner project github_json latversion candidates dir asset_name asset_url status rc=0
+	local temp="" temppath=""
 	parse_github_url "$url" owner project || return 1
 	github_json=$(fetch_latest "$owner" "$project") || {
 		printerr "$project: no response from github"
@@ -221,13 +222,21 @@ install() {
 				return 1
 			} ;;
 		*) printerr "unfamiliar type: $asset_name_in";
-			read -r -n 1 -p "it will be removed, do you want to install it as it ? (y/n): " reply
-			[[ "$reply" == "y" ]] && {
-				mv "$temppath" "$newpath" || {
-				printerr "failed to move $temppath to $newpath"
-				return 1
-				}
-			};;
+			while true; do
+				read -r -n 1 -p "$project_in will be removed, unlesss you want to install it as it ? (y/n): " reply || return 1
+				case "${reply,,}" in
+					"y")
+						mv "$temppath" "$newpath" || {
+						printerr "failed to move $temppath to $newpath"
+						return 1
+						}
+					break
+					;;
+					"n") return 1;;
+					*) printerr "try again"
+				esac
+			done
+			;;
 	esac
 
 	metafilepath="$newpath"/metaGRUfile
@@ -249,7 +258,7 @@ install() {
 		}
 		return 1
 	}
-	echo "successfuly installed $project to $program_path"
+	echo "successfuly installed $project_in to $program_path"
 }
 
 update_one() {
