@@ -2,7 +2,7 @@
 set -euo pipefail
 
 printerr() {
-	printf '%s\n' "$1" >&2
+	printf '\n%s\n' "$1" >&2
 }
 
 usage() {
@@ -40,7 +40,10 @@ filter_find_candidates() {
 	local sep_r='([^[:alnum:]]|$)'
 	local arch_filter arch os_filter ext_filter
 
-	arch=$(uname -m) || return 1
+	arch=$(uname -m) || {
+		echo "failed to retrive machine arch"
+		return 1
+	}
 
 	case "$arch" in
 		x86_64)  arch_filter="${sep_l}(x86_64|amd64|x64)${sep_r}" ;;
@@ -52,7 +55,7 @@ filter_find_candidates() {
 	esac
 
 	os_filter="${sep_l}(darwin|macos|osx|apple|mac|windows|win(32|64)?|msvc|freebsd|openbsd|netbsd|dragonfly|illumos|solaris|android|ios)${sep_r}"
-	ext_filter='\.tar\.(gz|xz|zst|bz2)$|\.tgz$|\.zip$|\amd64$'
+	ext_filter='\.tar\.(gz|xz|zst|bz2)$|\.tgz$|\.zip$|\amd64$|\linux$'
 
 	jq -r \
 		--arg arch "$arch_filter" \
@@ -62,6 +65,15 @@ filter_find_candidates() {
 		| select(.name | test($ext; "i"))
 		| select(.name | test($arch; "i"))
 		| select((.name | test($os; "i")) | not)
+		| [.name, .browser_download_url] | @tsv
+	' <<< "$github_json_in"
+
+}
+
+return_all_candidates() {
+	local github_json_in=$1
+	jq -r \
+		 '.assets[]
 		| [.name, .browser_download_url] | @tsv
 	' <<< "$github_json_in"
 }
@@ -166,8 +178,12 @@ install_from_url() {
 		return 1
 	}
 	[[ -n $candidates ]] || {
-		printerr "$project: no candidates"
-		return 1
+		printerr "$project: no candidates, attempting to list all candidates"
+		candidates=$(return_all_candidates "$github_json")
+		[[ -n "$candidates" ]] || {
+			printerr "nothing"
+			return 1
+		}
 	}
 
 	select_candidate_url "$candidates" asset_name asset_url || {
@@ -197,7 +213,7 @@ install() {
 	temp=$(mktemp -d) || return 1
 	temppath="$temp"/"$asset_name_in"
 
-	echo "downloading $asset_name_in"
+	printf '\ndownloading %s\n' "$asset_name_in"
 	curl -fL "$asset_url_in" -o "$temppath" || {
 		printerr "Error: failed to download $asset_name_in"
 		return 1
@@ -207,7 +223,7 @@ install() {
 		printerr "Failed to create staging directory"
 		return 1
 	}
-	echo "created staging directory $newpath"
+	printf '\ncreated staging directory %s\n' "$newpath"
 
 	case "${asset_name_in,,}" in
 		*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.tar.bz2)
@@ -227,8 +243,8 @@ install() {
 				case "${reply,,}" in
 					"y")
 						mv "$temppath" "$newpath" || {
-						printerr "failed to move $temppath to $newpath"
-						return 1
+							printerr "failed to move $temppath to $newpath"
+							return 1
 						}
 					break
 					;;
@@ -258,7 +274,7 @@ install() {
 		}
 		return 1
 	}
-	echo "successfuly installed $project_in to $program_path"
+	printf '\nsuccessfuly installed %s to %s\n' "$project_in" "$program_path"
 }
 
 update_one() {
@@ -302,8 +318,12 @@ update_one() {
 		return 1
 	}
 	[[ -n $candidates ]] || {
-		printerr "$project: no candidates"
-		return 1
+		printerr "$project: no candidates post filtering, attempting to list all candidates"
+		candidates=$(return_all_candidates "$github_json")
+		[[ -n "$candidates" ]] || {
+			printerr "nothing"
+			return 1
+		}
 	}
 
 	select_candidate_url "$candidates" asset_name asset_url || {
