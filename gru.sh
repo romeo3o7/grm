@@ -5,6 +5,10 @@ printerr() {
 	printf '%s\n' "$1" >&2
 }
 
+usage() {
+printf 'update_all: update all Programs in %s\nupdate_one: update one package, directory name is required\n' "$programs_dir"
+}
+
 fetch_latest() {
 	# called as: fetch_latest $owner $project
 	local owner_in=$1
@@ -48,7 +52,7 @@ filter_find_candidates() {
 	esac
 
 	os_filter="${sep_l}(darwin|macos|osx|apple|mac|windows|win(32|64)?|msvc|freebsd|openbsd|netbsd|dragonfly|illumos|solaris|android|ios)${sep_r}"
-	ext_filter='\.tar\.(gz|xz|zst|bz2)$|\.tgz$|\.zip$'
+	ext_filter='\.tar\.(gz|xz|zst|bz2)$|\.tgz$|\.zip$|\amd64$'
 
 	jq -r \
 		--arg arch "$arch_filter" \
@@ -119,8 +123,68 @@ select_candidate_url() {
 		done
 	done
 }
+
+parse_github_url() {
+	# called as: parse_github_url "$url" owner project
+	local url_in=$1
+	local -n owner_out=$2
+	local -n project_out=$3
+	local rest o p extra
+
+	case "$url_in" in
+		https://github.com/*) rest=${url_in#https://github.com/} ;;
+		*) printerr "not a https://github.com/ url"; return 1 ;;
+	esac
+
+	rest=${rest%%[?#]*}    # drop ?query and #fragment
+	rest=${rest%/}         # drop one trailing slash
+	IFS=/ read -r o p extra <<< "$rest"
+	p=${p%.git}            # https://github.com/owner/repo.git
+
+	[[ -n $o && -n $p ]] || { printerr "url has no owner/repo"; return 1; }
+	case "$o" in *[!A-Za-z0-9._-]*) printerr "bad owner name"; return 1 ;; esac
+	case "$p" in *[!A-Za-z0-9._-]*) printerr "bad repo name"; return 1 ;; esac
+	[[ $o == . || $o == .. || $p == . || $p == .. ]] && { printerr "bad name"; return 1; }
+
+	owner_out=$o
+	project_out=$p
+}
+
+install_from_url() {
+	local url=$1
+	local owner project github_json latversion candidates dir asset_name asset_url status rc=0
+	parse_github_url "$url" owner project || return 1
+	github_json=$(fetch_latest "$owner" "$project") || {
+		printerr "$project: no response from github"
+		return 1
+	}
+	latversion=$(jq -r '.tag_name // empty' <<< "$github_json")
+	[[ -z "$latversion" ]] && { printerr "$project: can't find version ~empty json"; return 1; }
+	candidates=$(filter_find_candidates "$github_json") || {
+		printerr "$project: filtering assets failed"
+		return 1
+	}
+	[[ -n $candidates ]] || {
+		printerr "$project: no candidates"
+		return 1
+	}
+
+	select_candidate_url "$candidates" asset_name asset_url || {
+		status=$?
+		[[ $status -eq 2 ]] && return 0
+		return 1
+	}
+	local program_path="$programs_dir/$project"
+	mkdir -p "$program_path"
+	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || rc=1
+	if [[ -n $temp ]]; then rm -rf "$temp"; fi
+	if [[ -n $newpath ]]; then rm -rf "$newpath"; fi
+
+	return "$rc"
+}
+
 install() {
-	# called as: install "$asset_name" "$asset_url" "$dir" "$owner" "$project" "$version"
+	# called as: install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$version"
 	local asset_name_in=$1
 	local asset_url_in=$2
 	local program_path=$3
@@ -142,6 +206,7 @@ install() {
 		printerr "Failed to create staging directory"
 		return 1
 	}
+	echo "created staging directory $newpath"
 
 	case "${asset_name_in,,}" in
 		*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.tar.bz2)
@@ -154,9 +219,15 @@ install() {
 			unzip -o "$temppath" -d "$newpath" > /dev/null || {
 				printerr "unziping $temppath failed"
 				return 1
-			}
-			;;
-		*) printerr "unsupported archive type: $asset_name_in"; return 1 ;;
+			} ;;
+		*) printerr "unfamiliar type: $asset_name_in";
+			read -r -n 1 -p "it will be removed, do you want to install it as it ? (y/n): " reply
+			[[ "$reply" == "y" ]] && {
+				mv "$temppath" "$newpath" || {
+				printerr "failed to move $temppath to $newpath"
+				return 1
+				}
+			};;
 	esac
 
 	metafilepath="$newpath"/metaGRUfile
@@ -178,6 +249,7 @@ install() {
 		}
 		return 1
 	}
+	echo "successfuly installed $project to $program_path"
 }
 
 update_one() {
@@ -238,7 +310,7 @@ update_one() {
 	return "$rc"
 }
 
-update() {
+update_all() {
 	failures=0
 	for dir in "$programs_dir"/*; do
 		[[ -f $dir/metaGRUfile ]] || continue
@@ -249,10 +321,13 @@ update() {
 		printerr "$failures program(s) failed"
 		return 1
 	fi
-}
+ }
+
 programs_dir="$HOME/Programs"
 
 case "${1:-}" in
-	update) update ;;
-	*) printerr "usage: gru update"; exit 1 ;;
+	install) install_from_url "${2:-}" ;;
+	update_all) update_all ;;
+	update_one) update_one "$programs_dir"/"${2:-}" ;;
+	*) usage; exit 1 ;;
 esac
