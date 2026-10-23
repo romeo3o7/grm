@@ -25,6 +25,7 @@ parse_github_url() {
 }
 
 install_from_url() {
+	#called as: install_from_url "$url"
 	local url=$1
 	local owner project github_json latversion candidates dir asset_name asset_url status rc=0
 	local temp="" temppath=""

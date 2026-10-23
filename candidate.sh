@@ -1,4 +1,5 @@
 return_all_candidates() {
+	# called as: return_candidates $github_json
 	local github_json_in=$1
 	jq -r \
 		 '.assets[]
@@ -40,9 +41,7 @@ filter_find_candidates() {
 		| select((.name | test($os; "i")) | not)
 		| [.name, .browser_download_url] | @tsv
 	' <<< "$github_json_in"
-
 }
-
 
 select_candidate_url() {
 	# Called as: select_candidate_url "$candidates" asset_name asset_url

@@ -37,7 +37,6 @@ read_metadata() {
 
 update_one() {
 	# called as: update_one "$dir"
-	# returns 0 for updated / up to date / user declined, 1 for a failure
 	local dir=$1
 	local owner project perversion latversion github_json candidates
 	local asset_name asset_url reply status rc=0
@@ -61,7 +60,7 @@ update_one() {
 	}
 	if [[ $latversion == "$perversion" ]]; then
 		printerr "$project is up to date. version: $latversion"
-		for i in {0..30}; do
+		for i in {0..40}; do
 			printf '='
 		done
 		printf '\n'

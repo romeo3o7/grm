@@ -1,5 +1,6 @@
 install() {
 	# called as: install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$version"
+	# if its called, the caller should remove temp And temppath
 	local asset_name_in=$1
 	local asset_url_in=$2
 	local program_path=$3
@@ -73,4 +74,8 @@ install() {
 		return 1
 	}
 	printf '\nsuccessfuly installed %s to %s\n' "$project_in" "$program_path"
+	for i in {0..40}; do
+		printf '='
+	done
+	printf '\n'
 }
