@@ -14,6 +14,10 @@ programs_dir="$HOME/Programs"
 case "${1:-}" in
 	install) install_from_url "${2:-}" ;;
 	update_all) update_all ;;
-	update_one) update_one "$programs_dir"/"${2:-}" ;;
-	*) usage; exit 1 ;;
+	update_one)
+		[[ -n ${2:-} ]] || { usage; exit 1; }
+		update_one "$programs_dir/$2"
+	;;
+	list) list_packages ;;
+	*) usage; exit 0 ;;
 esac
