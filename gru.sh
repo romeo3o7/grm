@@ -16,7 +16,11 @@ case "${1:-}" in
 	update_all) update_all ;;
 	update_one)
 		[[ -n ${2:-} ]] || { usage; exit 1; }
-		update_one "$programs_dir/$2"
+		if [[ "${2:0:1}" == '/' ]]; then
+			update_one "$2"
+		else
+			update_one "$programs_dir/$2"
+		fi
 	;;
 	list) list_packages ;;
 	*) usage; exit 0 ;;

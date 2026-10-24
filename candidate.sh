@@ -37,7 +37,7 @@ return_last_candidate() {
 	local asset_name_in=$1
 	local github_json_in=$2
 	jq -r \
-		--arg name "$asset_name_in" '.assets[] | select(.name == $name) | .browser_download_url | @tsv' <<< "$github_json_in"
+		--arg name "$asset_name_in" '.assets[] | select(.name == $name) | .browser_download_url' <<< "$github_json_in"
 }
 
 filter_find_candidates() {

@@ -4,7 +4,7 @@ printerr() {
 }
 
 usage() {
-	printf '\tlist\t\t+{} list packages\n\tinstall\t\t+{url} installs the remote repo\ngrm\tupdate_all\t+{} updates all registered Programs\n\tupdate_one\t+{package name} updates that one package\n'
+	printf '\tlist\t\t+{} List Availabe Package Names\n\tinstall\t\t+{url} Installs The Remote Repo\ngrm\tupdate_all\t+{} Updates All Registered Programs\n\tupdate_one\t+{package name} Updates The Package Or +{Absloute Path To a Dir}.\n'
 }
 
 fetch_latest() {
@@ -15,7 +15,7 @@ fetch_latest() {
 }
 
 list_packages() {
-	local version
+	local version metadata version
 	for dir in "$programs_dir/"/*; do
 		metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || continue
 		version=$(grep '^Version:' <<< "$metadatafile" | sed 's|Version:||' | tr -d ' \r\n') || return 1
