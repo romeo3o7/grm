@@ -28,7 +28,6 @@ install_from_url() {
 	#called as: install_from_url "$url"
 	local url=$1
 	local owner project github_json latversion candidates dir asset_name asset_url status rc=0
-	local temp="" temppath=""
 	parse_github_url "$url" owner project || return 1
 	github_json=$(fetch_latest "$owner" "$project") || {
 		printerr "$project: no response from github"
@@ -36,19 +35,8 @@ install_from_url() {
 	}
 	latversion=$(jq -r '.tag_name // empty' <<< "$github_json")
 	[[ -z "$latversion" ]] && { printerr "$project: can't find version ~empty json"; return 1; }
-	candidates=$(filter_find_candidates "$github_json") || {
-		printerr "$project: filtering assets failed"
-		return 1
-	}
-	[[ -n $candidates ]] || {
-		printerr "$project: no candidates, attempting to list all candidates"
-		candidates=$(return_all_candidates "$github_json")
-		[[ -n "$candidates" ]] || {
-			printerr "nothing"
-			return 1
-		}
-	}
 
+	candidates=$(find_candidates "$github_json") || return 1
 	select_candidate_url "$candidates" asset_name asset_url || {
 		status=$?
 		[[ $status -eq 2 ]] && return 0
