@@ -19,20 +19,22 @@ fetch_latest() {
 }
 
 read_metadata() {
-	# called as: read_metadata $dir owner project perversion
+	# called as: read_metadata $dir owner project perversion asset_name
 	local dir=$1
 	local -n owner_out=$2
 	local -n project_out=$3
 	local -n version_out=$4
+	local -n asset_name_out=$5
 	local metadatafile
 
 	metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || {
 		return 1
 	}
 
-	owner_out=$(   grep '^Owner:'   <<< "$metadatafile" | sed 's|Owner:||'   | tr -d ' \r\n') || return 1
-	project_out=$( grep '^Project:' <<< "$metadatafile" | sed 's|Project:||' | tr -d ' \r\n') || return 1
-	version_out=$( grep '^Version:' <<< "$metadatafile" | sed 's|Version:||' | tr -d ' \r\n') || return 1
+	owner_out=$(   grep '^Owner:'     <<< "$metadatafile" | sed 's|Owner:||'     | tr -d ' \r\n') || return 1
+	project_out=$( grep '^Project:'   <<< "$metadatafile" | sed 's|Project:||'   | tr -d ' \r\n') || return 1
+	version_out=$( grep '^Version:'   <<< "$metadatafile" | sed 's|Version:||'   | tr -d ' \r\n') || return 1
+	asset_name_out=$( grep '^AssetName:' <<< "$metadatafile" | sed 's|AssetName:||' | tr -d ' \r\n') || return 1
 }
 
 update_one() {
@@ -42,7 +44,7 @@ update_one() {
 	local asset_name asset_url reply status rc=0
 	local temp="" newpath=""   # filled in by install, cleaned up below
 
-	read_metadata "$dir" owner project perversion || {
+	read_metadata "$dir" owner project perversion asset_name || {
 		printerr "$dir: could not read metadata"
 		return 1
 	}
@@ -74,18 +76,7 @@ update_one() {
 		[[ $reply == y ]] && break
 	done
 
-	candidates=$(filter_find_candidates "$github_json") || {
-		printerr "$project: filtering assets failed"
-		return 1
-	}
-	[[ -n $candidates ]] || {
-		printerr "$project: no candidates post filtering, attempting to list all candidates"
-		candidates=$(return_all_candidates "$github_json")
-		[[ -n "$candidates" ]] || {
-			printerr "nothing"
-			return 1
-		}
-	}
+	candidates=$(find_candidates "$github_json" "$asset_name")
 
 	select_candidate_url "$candidates" asset_name asset_url || {
 		status=$?

@@ -55,7 +55,7 @@ install() {
 	esac
 
 	metafilepath="$newpath"/metaGRUfile
-	printf 'Owner:%s\nProject:%s\nVersion:%s\n' "$owner_in" "$project_in" "$version_in" > "$metafilepath" || {
+	printf 'Owner:%s\nProject:%s\nVersion:%s\nAssetName:%s\n' "$owner_in" "$project_in" "$version_in" > "$metafilepath" "$asset_name_in" || {
 		printerr "failed to Write to metadata file"
 		return 1
 	}

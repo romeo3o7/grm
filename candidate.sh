@@ -1,3 +1,28 @@
+find_candidates() {
+	# called as: find_candidates "$github_json" "$asset_name"
+	local github_json_preproc=$1
+	local asset_name_preproc=${2:-}
+	local candidates_preproc
+	[[ -n "$asset_name_preproc" ]] && {
+		candidates_preproc=$(return_last_candidate "$asset_name_preproc" "$github_json_preproc")
+	}
+	[[ -n "${candidates_preproc:-}" ]] || {
+		candidates_preproc=$(filter_find_candidates "$github_json_preproc") || {
+			printerr "arch lookup failed"
+			return 1
+		}
+		[[ -n $candidates_preproc ]] || {
+			printerr "no candidates post filtering, attempting to list all candidates"
+			candidates_preproc=$(return_all_candidates "$github_json_preproc")
+			[[ -n "$candidates_preproc" ]] || {
+				printerr "nothing"
+				return 1
+			}
+		}
+	}
+	printf '%s\n' "$candidates_preproc"
+}
+
 return_all_candidates() {
 	# called as: return_candidates $github_json
 	local github_json_in=$1
@@ -5,6 +30,14 @@ return_all_candidates() {
 		 '.assets[]
 		| [.name, .browser_download_url] | @tsv
 	' <<< "$github_json_in"
+}
+
+return_last_candidate() {
+	# called as: return_last_candidate $asset_name $github_json
+	local asset_name_in=$1
+	local github_json_in=$2
+	jq -r \
+		--arg name "$asset_name_in" '.assets[] | select(.name == $name) | .browser_download_url | @tsv' <<< "$github_json_in"
 }
 
 filter_find_candidates() {
