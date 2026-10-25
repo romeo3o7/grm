@@ -39,7 +39,7 @@ update_one() {
 	# called as: update_one "$dir"
 	local program_path=$1
 	local owner project perversion latversion github_json candidates
-	local asset_name asset_url reply status
+	local asset_name asset_url reply status=0
 
 	read_metadata "$program_path" owner project perversion asset_name || {
 		printerr "read_metadata: existing metadata lookup"
