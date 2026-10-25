@@ -27,8 +27,7 @@ parse_github_url() {
 install_from_url() {
 	#called as: install_from_url "$url"
 	local url=$1
-	local owner project github_json latversion candidates dir asset_name asset_url status rc=0
-	temp="" newpath=""
+	local owner project github_json latversion candidates dir asset_name asset_url reply status=0
 
 	parse_github_url "$url" owner project || return 1
 
@@ -50,13 +49,12 @@ install_from_url() {
 
 	local program_path="$programs_dir/$project"."$owner"
 	mkdir "$program_path" 2>/dev/null || {
-		printf 'Establishing a New Home For the Program Failed Due To Collision\n%s Exits\n' "$program_path"
-
 		if ! [[ -d "$programs_dir" ]]; then
 			printerr "parent folder $programs_dir is not found"
 			return 1
 		fi
 
+		printf 'Establishing a New Home For the Program Failed Due To Collision\n%s Exits\n' "$program_path"
 		printf 'Should it Be Used Anyway? All Contens Inside will be removed..'
 		while true; do
 			if ! read -r -p "[y/n]?" reply; then
@@ -72,7 +70,7 @@ install_from_url() {
 		done
 	}
 
-	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || rc=1
+	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || status=1
 
-	return "$rc"
+	return "$status"
 }

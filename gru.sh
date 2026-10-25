@@ -13,6 +13,7 @@ for file in "$script_dir"/*.sh; do
 done
 
 programs_dir="$HOME/Programs"
+temp="" newpath=""
 
 case "${1:-}" in
 	install)
@@ -22,11 +23,18 @@ case "${1:-}" in
 		fi
 		install_from_url "$2"
 	;;
-	update_all) update_all ;;
+	update_all)
+		update_all
+	;;
 	update_one)
 		[[ -n ${2:-} ]] || { usage; exit 1; }
 		update_one "$programs_dir/$2"
 	;;
-	list) list_packages ;;
-	*) usage; exit 0 ;;
+	list)
+		list_packages
+	;;
+	*)
+		usage;
+		exit 0
+	;;
 esac

@@ -28,9 +28,13 @@ list_packages() {
 }
 
 print_lines(){
-	local col=$(( $(tput cols) / 2 ))
-	local i
-	for (( i=0; i<=${col:-40};i++ )); do
+	local totalcol col i
+
+	if ! totalcol=$(tput cols 2>/dev/null); then
+		totalcol=100
+	fi
+	col=$(( $totalcol / 2 ))
+	for (( i=0; i<=$col;i++ )); do
 		printf '='
 	done
 	printf ']\n'

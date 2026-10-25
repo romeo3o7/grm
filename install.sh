@@ -74,11 +74,11 @@ install() {
 
 	metafilepath="$program_path_in"/metaGRUfile
 	[[ -e "$metafilepath" ]] || [[ -L "$metafilepath" ]] && {
-		printerr 'meta file already exists\nskipping creation of metadata\ndo it manually'
+		printerr 'meta file already exists. skipping creation of metadata. do it manually'
 		return 1
 	}
 
-	printf 'Owner:%s\nProject:%s\nVersion:%s\nAssetName:%s\n' "$owner_in" "$project_in" "$version_in" > "$metafilepath" "$asset_name_in" || {
+	printf 'Owner:%s\nProject:%s\nVersion:%s\nAssetName:%s\n' "$owner_in" "$project_in" "$version_in" "$asset_name_in" > "$metafilepath" || {
 		printerr "failed to Write to metadata file"
 		return 1
 	}

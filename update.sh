@@ -40,7 +40,6 @@ update_one() {
 	local program_path=$1
 	local owner project perversion latversion github_json candidates
 	local asset_name asset_url reply status
-	temp="" newpath=""   # filled in by install, cleaned up below
 
 	read_metadata "$program_path" owner project perversion asset_name || {
 		printerr "read_metadata: existing metadata lookup"
@@ -85,6 +84,7 @@ update_one() {
 	}
 
 	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || status=1
+	cleanup
 
 	return "$status"
 }
