@@ -49,9 +49,28 @@ install_from_url() {
 	}
 
 	local program_path="$programs_dir/$project"."$owner"
-	mkdir "$program_path" || {
-		printerr "Creating a new path for the program failed,Rename/Delete $program_path and run script again"
-		return 1
+	mkdir "$program_path" 2>/dev/null || {
+		printf 'Establishing a New Home For the Program Failed Due To Collision\n%s Exits\n' "$program_path"
+
+		if [[ -d "$programs_dir" ]]; then
+			printerr "parent folder $programs_dir is not found"
+			return 1
+		fi
+
+		printf 'Should it Be Used Anyway? All Contens Inside will be removed..'
+		while true; do
+			if ! read -r -p "[y/n]?" reply; then
+				return 1
+			fi
+			case ${reply,,:-} in
+				y)
+					rm -fr $program_path/*
+					break
+				;;
+				n) return 0;;
+				*) printerr "unkown input";;
+			esac
+		done
 	}
 
 	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || rc=1

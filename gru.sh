@@ -12,7 +12,13 @@ done
 programs_dir="$HOME/Programs"
 
 case "${1:-}" in
-	install) install_from_url "${2:-}" ;;
+	install)
+		if [[ -z "${2:-}" ]]; then
+			printerr "specify a url"
+			exit 1
+		fi
+		install_from_url "$2"
+	;;
 	update_all) update_all ;;
 	update_one)
 		[[ -n ${2:-} ]] || { usage; exit 1; }

@@ -4,7 +4,7 @@ printerr() {
 }
 
 usage() {
-	printf '\tlist\t\t+{} List Availabe Package Names\n\tinstall\t\t+{url} Installs The Remote Repo\ngrm\tupdate_all\t+{} Updates All Registered Programs\n\tupdate_one\t+{package name} Updates The Package Or +{Absloute Path To a Dir}.\n'
+	printf '\tlist\t\t+{} List Availabe Package Names\n\tinstall\t\t+{url} Installs The Remote Repo\ngrm\tupdate_all\t+{} Updates All Registered Programs\n\tupdate_one\t+{package name} Updates The Package\n'
 }
 
 fetch_latest() {
