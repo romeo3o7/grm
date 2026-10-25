@@ -57,7 +57,6 @@ install() {
 			;;
 	esac
 
-
 	mv "$program_path_in" "$temp" || {
 		printerr "failed to delete old version"
 		return 1
@@ -65,8 +64,8 @@ install() {
 
 	mv "$newpath" "$program_path_in" || {
 		printerr "failed to move new version"
-		mv "$temp/$project_in" "$program_path_in" || {
-			printerr "restoration failed, the old version is in the /tmp"
+		mv "$temp/$project_in.$owner_in" "$program_path_in" || {
+			printerr "restoration failed"
 			return 1
 		}
 		return 1
@@ -76,7 +75,7 @@ install() {
 
 	metafilepath="$program_path_in"/metaGRUfile
 	[[ -e "$metafilepath" ]] || [[ -L "$metafilepath" ]] && {
-		printerr 'meta file already exists\nskipping creation of metadata\n'
+		printerr 'meta file already exists\nskipping creation of metadata\ndo it manually'
 		return 1
 	}
 
@@ -84,9 +83,5 @@ install() {
 		printerr "failed to Write to metadata file"
 		return 1
 	}
-
-	for i in {0..40}; do
-		printf '='
-	done
-	printf '\n'
+	print_lines
 }

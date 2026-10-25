@@ -48,9 +48,9 @@ install_from_url() {
 		return 1
 	}
 
-	local program_path="$programs_dir/$project"
+	local program_path="$programs_dir/$project"."$owner"
 	mkdir "$program_path" || {
-		printerr "Creating a new path for the program failed"
+		printerr "Creating a new path for the program failed,Rename/Delete $program_path and run script again"
 		return 1
 	}
 

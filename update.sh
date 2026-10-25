@@ -1,5 +1,6 @@
 update_all() {
-	failures=0
+	print_lines
+	local failures=0
 	for dir in "$programs_dir"/*; do
 		[[ -f $dir/metaGRUfile ]] || continue
 		update_one "$dir" || failures=$((failures + 1))
@@ -18,7 +19,7 @@ read_metadata() {
 	local -n project_out=$3
 	local -n version_out=$4
 	local -n asset_name_out=$5
-	local metadatafile
+	local metadatafile var
 
 	metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || return 1
 	owner_out=$(      grep '^Owner:'     <<< "$metadatafile" | sed 's|Owner:||'     | tr -d '\n') || return 1
@@ -61,10 +62,7 @@ update_one() {
 
 	if [[ $latversion == "$perversion" ]]; then
 		printf 'up to date\n'
-		for i in {0..40}; do
-			printf '='
-		done
-		printf '\n'
+		print_lines
 		return 0
 	fi
 
@@ -73,7 +71,7 @@ update_one() {
 	while true; do
 		read -r -p "Should we update $project? [y/n] " reply || return 1
 		case ${reply,,} in
-			[n/q]) return 0 ;;
+			n|q) return 0 ;;
 			y) break ;;
 			*) printf 'input not understood\n' ;;
 		esac

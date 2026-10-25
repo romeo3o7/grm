@@ -15,10 +15,19 @@ fetch_latest() {
 }
 
 list_packages() {
-	local version metadata version
+	local metadatafile version dir
 	for dir in "$programs_dir/"/*; do
 		metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || continue
-		version=$(grep '^Version:' <<< "$metadatafile" | sed 's|Version:||' | tr -d ' \r\n') || return 1
+		version=$(grep '^Version:' <<< "$metadatafile" | sed 's|Version:||' | tr -d '\n') || continue
 		printf '%s: %s\n' "${dir##*/}" "$version"
 	done
+}
+
+print_lines(){
+	local col=$(( $(tput cols) / 2 ))
+	local i
+	for (( i=0; i<=${col:-40};i++ )); do
+		printf '='
+	done
+	printf ']\n'
 }

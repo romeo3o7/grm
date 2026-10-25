@@ -37,7 +37,7 @@ return_last_candidate() {
 	local asset_name_in=$1
 	local github_json_in=$2
 	jq -r \
-		--arg name "$asset_name_in" '.assets[] | select(.name == $name) | .browser_download_url' <<< "$github_json_in"
+		--arg name "$asset_name_in" '.assets[] | select(.name == $name) | [.name, .browser_download_url] | @tsv' <<< "$github_json_in"
 }
 
 filter_find_candidates() {
@@ -48,7 +48,7 @@ filter_find_candidates() {
 	local arch_filter arch os_filter ext_filter
 
 	arch=$(uname -m) || {
-		echo "failed to retrive machine arch"
+		printerr "failed to retrive machine arch"
 		return 1
 	}
 
@@ -62,7 +62,7 @@ filter_find_candidates() {
 	esac
 
 	os_filter="${sep_l}(darwin|macos|osx|apple|mac|windows|win(32|64)?|msvc|freebsd|openbsd|netbsd|dragonfly|illumos|solaris|android|ios)${sep_r}"
-	ext_filter='\.tar\.(gz|xz|zst|bz2)$|\.tgz$|\.zip$|\amd64$|\linux$'
+	ext_filter='\.tar\.(gz|xz|zst|bz2)$|\.tgz$|\.zip$|amd64$|linux$'
 
 	jq -r \
 		--arg arch "$arch_filter" \
