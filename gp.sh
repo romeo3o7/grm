@@ -14,6 +14,10 @@ fetch_latest() {
 	curl -fsS "https://api.github.com/repos/$owner_in/$project_in/releases/latest"
 }
 
+cleanup() {
+	if [[ -n $temp ]]; then rm -rf -- "$temp"; fi
+	if [[ -n $newpath ]]; then rm -rf -- "$newpath"; fi
+}
 list_packages() {
 	local metadatafile version dir
 	for dir in "$programs_dir/"/*; do

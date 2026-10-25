@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+trap cleanup EXIT
+trap 'exit 1' INT TERM HUP
+
 ## Finds the absolute or relative directory of the script itself
 script_path=$(readlink -f "${BASH_SOURCE[0]}")
 script_dir=$(dirname "$script_path")

@@ -1,6 +1,5 @@
 install() {
 	# called as: install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$version"
-	# if its called, the caller should remove temp And newpath
 	local asset_name_in=$1
 	local asset_url_in=$2
 	local program_path_in=$3

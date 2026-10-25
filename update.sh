@@ -39,8 +39,8 @@ update_one() {
 	# called as: update_one "$dir"
 	local program_path=$1
 	local owner project perversion latversion github_json candidates
-	local asset_name asset_url reply status rc=0
-	local temp="" newpath=""   # filled in by install, cleaned up below
+	local asset_name asset_url reply status
+	temp="" newpath=""   # filled in by install, cleaned up below
 
 	read_metadata "$program_path" owner project perversion asset_name || {
 		printerr "read_metadata: existing metadata lookup"
@@ -71,8 +71,8 @@ update_one() {
 	while true; do
 		read -r -p "Should we update $project? [y/n] " reply || return 1
 		case ${reply,,} in
-			n|q) return 0 ;;
 			y) break ;;
+			n) return 0 ;;
 			*) printf 'input not understood\n' ;;
 		esac
 	done
@@ -80,14 +80,11 @@ update_one() {
 	candidates=$(find_candidates "$github_json" "$asset_name") || return 1
 
 	select_candidate_url "$candidates" asset_name asset_url || {
-		status=$?
-		[[ $status -eq 2 ]] && return 0
+		[[ "$?" -eq 2 ]] && return 0
 		return 1
 	}
 
-	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || rc=1
+	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || status=1
 
-	if [[ -n $temp ]]; then rm -rf "$temp"; fi
-	if [[ -n $newpath ]]; then rm -rf "$newpath"; fi
-	return "$rc"
+	return "$status"
 }
