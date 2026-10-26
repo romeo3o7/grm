@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+temp="" newpath=""
 trap cleanup EXIT
 trap 'exit 1' INT TERM HUP
 
@@ -13,7 +14,6 @@ for file in "$script_dir"/*.sh; do
 done
 
 programs_dir="$HOME/Programs"
-temp="" newpath=""
 
 case "${1:-}" in
 	install)
