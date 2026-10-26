@@ -1,3 +1,39 @@
+extract() {
+	local Aname=$1
+	local temppath_in=$2
+	local newpath_in=$3
+	local reply
+	case "${Aname,,}" in
+		*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.tar.bz2|*.tar)
+			tar -xf "$temppath" -C "$newpath" || {
+				printerr "Extracting $temppath failed"
+				return 1
+			}
+			;;
+		*.zip)
+			unzip -o "$temppath_in" -d "$newpath_in" > /dev/null || {
+				printerr "unziping $temppath failed"
+				return 1
+			} ;;
+		*) printerr "unfamiliar type: $Aname";
+			while true; do
+				read -r -n 1 -p "$Aname will be removed, unlesss you want to install it as it ? (y/n): " reply || return 1
+				case "${reply,,}" in
+					"y")
+						mv "$temppath_in" "$newpath_in" || {
+							printerr "failed to move $temppath_in to $newpath_in"
+							return 1
+						}
+					break
+					;;
+					"n") return 1;;
+					*) printerr "try again"
+				esac
+			done
+			;;
+	esac
+}
+
 install() {
 	# called as: install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$version"
 	local asset_name_in=$1
@@ -11,8 +47,8 @@ install() {
 	temp=$(mktemp -d) || return 1
 	temppath="$temp"/"$asset_name_in"
 
-	printf '\ndownloading %s\n' "$asset_name_in"
-	curl -fL "$asset_url_in" -o "$temppath" || {
+	printf '\ndownloading %s\n\n' "$asset_name_in"
+	curl --connect-timeout 3 --max-time 10 --show-error -fL "$asset_url_in" -o "$temppath" || {
 		printerr "Error: failed to download $asset_name_in"
 		return 1
 	}
@@ -26,35 +62,9 @@ install() {
 
 	printf 'created staging directory\n'
 
-	case "${asset_name_in,,}" in
-		*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.tar.bz2|*.tar)
-			tar -xf "$temppath" -C "$newpath" || {
-				printerr "Extracting $temppath failed"
-				return 1
-			}
-			;;
-		*.zip)
-			unzip -o "$temppath" -d "$newpath" > /dev/null || {
-				printerr "unziping $temppath failed"
-				return 1
-			} ;;
-		*) printerr "unfamiliar type: $asset_name_in";
-			while true; do
-				read -r -n 1 -p "$project_in will be removed, unlesss you want to install it as it ? (y/n): " reply || return 1
-				case "${reply,,}" in
-					"y")
-						mv "$temppath" "$newpath" || {
-							printerr "failed to move $temppath to $newpath"
-							return 1
-						}
-					break
-					;;
-					"n") return 1;;
-					*) printerr "try again"
-				esac
-			done
-			;;
-	esac
+	if ! extract "$asset_name_in" "$temppath" "$newpath"; then
+		return 1
+	fi
 
 	mv "$program_path_in" "$temp" || {
 		printerr "failed to delete old version"

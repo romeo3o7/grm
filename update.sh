@@ -22,10 +22,10 @@ read_metadata() {
 	local metadatafile var
 
 	metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || return 1
-	owner_out=$(      grep '^Owner:'     <<< "$metadatafile" | sed 's|Owner:||'     | tr -d '\n') || return 1
-	project_out=$(    grep '^Project:'   <<< "$metadatafile" | sed 's|Project:||'   | tr -d '\n') || return 1
-	version_out=$(    grep '^Version:'   <<< "$metadatafile" | sed 's|Version:||'   | tr -d '\n') || return 1
-	asset_name_out=$( grep '^AssetName:' <<< "$metadatafile" | sed 's|AssetName:||' | tr -d '\n') || return 1
+	owner_out=$(      grep '^Owner:'     <<< "$metadatafile" | sed 's|Owner:||'     ) || return 1
+	project_out=$(    grep '^Project:'   <<< "$metadatafile" | sed 's|Project:||'   ) || return 1
+	version_out=$(    grep '^Version:'   <<< "$metadatafile" | sed 's|Version:||'   ) || return 1
+	asset_name_out=$( grep '^AssetName:' <<< "$metadatafile" | sed 's|AssetName:||' ) || return 1
 
 	for var in "$owner_out" "$project_out" "$version_out" "$asset_name_out" ;do
 		if [[ -z "$var" ]]; then
