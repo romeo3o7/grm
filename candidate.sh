@@ -3,23 +3,27 @@ find_candidates() {
 	local github_json_preproc=$1
 	local asset_name_preproc=${2:-}
 	local candidates_preproc
-	[[ -n "$asset_name_preproc" ]] && {
+
+	if [[ -n "$asset_name_preproc" ]]; then
 		candidates_preproc=$(return_last_candidate "$asset_name_preproc" "$github_json_preproc")
-	}
-	[[ -n "${candidates_preproc:-}" ]] || {
-		candidates_preproc=$(filter_find_candidates "$github_json_preproc") || {
+	fi
+
+	if [[ -z "${candidates_preproc:-}" ]]; then
+		if ! candidates_preproc=$(filter_find_candidates "$github_json_preproc"); then
 			printerr "arch lookup failed"
 			return 1
-		}
-		[[ -n $candidates_preproc ]] || {
+		fi
+
+		if [[ -z $candidates_preproc ]]; then
 			printerr "no candidates post filtering, attempting to list all candidates"
 			candidates_preproc=$(return_all_candidates "$github_json_preproc")
-			[[ -n "$candidates_preproc" ]] || {
+			if [[ -z "$candidates_preproc" ]]; then
 				printerr "nothing"
 				return 1
-			}
-		}
-	}
+			fi
+		fi
+	fi
+
 	printf '%s\n' "$candidates_preproc"
 }
 
@@ -47,10 +51,10 @@ filter_find_candidates() {
 	local sep_r='([^[:alnum:]]|$)'
 	local arch_filter arch os_filter ext_filter
 
-	arch=$(uname -m) || {
+	if ! arch=$(uname -m); then
 		printerr "failed to retrive machine arch"
 		return 1
-	}
+	fi
 
 	case "$arch" in
 		x86_64)  arch_filter="${sep_l}(x86_64|amd64|x64)${sep_r}" ;;
@@ -95,7 +99,9 @@ select_candidate_url() {
 			done
 
 			while true; do
-				read -r -p "Pick an asset [1-${#lines[@]}], q to quit: " reply || return 1
+				if ! read -r -p "Pick an asset [1-${#lines[@]}], q to quit: " reply; then
+					return 1
+				fi
 				case "${reply,,}" in
 					q) return 2 ;;
 				esac
@@ -113,7 +119,9 @@ select_candidate_url() {
 		asset_name_out=${selected%%$'\t'*}
 
 		while true; do
-			read -r -p "Selected asset: $asset_name_out. Is that correct? [y/n/q] " reply || return 1
+			if ! read -r -p "Selected asset: $asset_name_out. Is that correct? [y/n/q] " reply; then 
+				return 1
+			fi
 
 			case "${reply,,}" in
 				y)

@@ -2,8 +2,13 @@ update_all() {
 	print_lines
 	local failures=0
 	for dir in "$programs_dir"/*; do
-		[[ -f $dir/metaGRUfile ]] || continue
-		update_one "$dir" || failures=$((failures + 1))
+		if ! [[ -f $dir/metaGRUfile ]]; then
+			continue
+		fi
+		if ! update_one "$dir"; then
+			failures=$((failures + 1))
+		fi
+	print_lines
 	done
 
 	if (( failures > 0 )); then
@@ -21,11 +26,21 @@ read_metadata() {
 	local -n asset_name_out=$5
 	local metadatafile var
 
-	metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || return 1
-	owner_out=$(      grep '^Owner:'     <<< "$metadatafile" | sed 's|Owner:||'     ) || return 1
-	project_out=$(    grep '^Project:'   <<< "$metadatafile" | sed 's|Project:||'   ) || return 1
-	version_out=$(    grep '^Version:'   <<< "$metadatafile" | sed 's|Version:||'   ) || return 1
-	asset_name_out=$( grep '^AssetName:' <<< "$metadatafile" | sed 's|AssetName:||' ) || return 1
+	if ! metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null); then
+		return 1
+	fi
+	if ! owner_out=$(grep '^Owner:' <<< "$metadatafile" | sed 's|Owner:||'); then
+		return 1
+	fi
+	if ! project_out=$(grep '^Project:' <<< "$metadatafile" | sed 's|Project:||'); then
+		return 1
+	fi
+	if ! version_out=$(grep '^Version:' <<< "$metadatafile" | sed 's|Version:||'); then
+		return 1
+	fi
+	if ! asset_name_out=$(grep '^AssetName:' <<< "$metadatafile" | sed 's|AssetName:||' ); then
+		return 1
+	fi
 
 	for var in "$owner_out" "$project_out" "$version_out" "$asset_name_out" ;do
 		if [[ -z "$var" ]]; then
@@ -41,34 +56,35 @@ update_one() {
 	local owner project perversion latversion github_json candidates
 	local asset_name asset_url reply status=0
 
-	read_metadata "$program_path" owner project perversion asset_name || {
+	if ! read_metadata "$program_path" owner project perversion asset_name; then
 		printerr "read_metadata: existing metadata lookup"
 		return 1
-	}
+	fi
 
 	printf '%s: querying for latest release, current: %s\n' "$project" "$perversion"
 
-	github_json=$(fetch_latest "$owner" "$project") || {
+	if ! github_json=$(fetch_latest "$owner" "$project"); then
 		printerr "$project: no response from github"
 		return 1
-	}
+	fi
 
 	latversion=$(jq -r '.tag_name // empty' <<< "$github_json")
-	[[ -n $latversion ]] || {
+	if [[ -z $latversion ]]; then
 		printerr "could not get latest version, Possibly Empty JSON"
 		return 1
-	}
+	fi
 
 	if [[ $latversion == "$perversion" ]]; then
 		printf 'up to date\n'
-		print_lines
 		return 0
 	fi
 
 	printf 'New version found: %s\n' "$latversion"
 
 	while true; do
-		read -r -p "Should we update $project? [y/n] " reply || return 1
+		if ! read -r -p "Should we update $project? [y/n] " reply ; then
+			return 1
+		fi
 		case ${reply,,} in
 			y) break ;;
 			n) return 0 ;;
@@ -76,14 +92,19 @@ update_one() {
 		esac
 	done
 
-	candidates=$(find_candidates "$github_json" "$asset_name") || return 1
+	if ! candidates=$(find_candidates "$github_json" "$asset_name"); then
+		return 1
+	fi
 
-	select_candidate_url "$candidates" asset_name asset_url || {
+	if ! select_candidate_url "$candidates" asset_name asset_url; then
 		[[ "$?" -eq 2 ]] && return 0
 		return 1
-	}
+	fi
 
-	install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion" || status=1
+	if ! install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion"; then
+		status=1
+	fi
+
 	cleanup
 
 	return "$status"
