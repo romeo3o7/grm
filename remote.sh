@@ -22,11 +22,11 @@ install_from_url() {
 		return 1
 	fi
 
-	if ! select_candidate_url "$candidates" asset_name asset_url; then
+	select_candidate_url "$candidates" asset_name asset_url || {
 		status=$?
 		[[ $status -eq 2 ]] && return 0
 		return 1
-	fi
+	}
 
 	local program_path="$programs_dir/$project"."$owner"
 	if ! mkdir "$program_path" 2>/dev/null; then

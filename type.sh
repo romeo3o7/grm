@@ -23,10 +23,11 @@ type_reslution() {
 		application/x-lzip*| \
 		application/x-lzma*| \
 		application/x-compress*| \
-		application/tar*)
+		application/tar*| \
+		application/x-tar*)
 
-			if ! tar -xf "$temppath_in" -C "$newpath"; then
-				printerr "Extracting $temppath failed"
+			if ! tar -xf "$temppath_in" -C "$newpath_in"; then
+				printerr "Extracting $temppath_in failed"
 				return 1
 			fi
 			;;

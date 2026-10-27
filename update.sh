@@ -96,10 +96,10 @@ update_one() {
 		return 1
 	fi
 
-	if ! select_candidate_url "$candidates" asset_name asset_url; then
+	 select_candidate_url "$candidates" asset_name asset_url || {
 		[[ "$?" -eq 2 ]] && return 0
 		return 1
-	fi
+	}
 
 	if ! install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion"; then
 		status=1

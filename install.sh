@@ -46,12 +46,6 @@
 
 	printf '\nsuccessfuly installed %s to %s\n' "$project_in" "$program_path_in"
 
-	if ! binpath=$(find "$program_path_in" -type d -name bin 2>/dev/null); then
-		return 1
-	fi
-	if [[ -n "$binpath" ]]; then
-		printf '\nbin path %s\n' "$binpath"
-	fi
 
 	metafilepath="$program_path_in"/metaGRUfile
 	if [[ -e "$metafilepath" ]] || [[ -L "$metafilepath" ]]; then
@@ -62,5 +56,12 @@
 	if ! printf 'Owner:%s\nProject:%s\nVersion:%s\nAssetName:%s\n' "$owner_in" "$project_in" "$version_in" "$asset_name_in" > "$metafilepath"; then
 		printerr "failed to Write to metadata file"
 		return 1
+	fi
+
+	if ! binpath=$(find "$program_path_in" -type d -name bin 2>/dev/null); then
+		return 1
+	fi
+	if [[ -n "$binpath" ]]; then
+		printf '\nbin path %s\n' "$binpath"
 	fi
 }
