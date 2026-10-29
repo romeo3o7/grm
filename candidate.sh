@@ -82,6 +82,7 @@ filter_find_candidates() {
 
 select_candidate_url() {
 	# Called as: select_candidate_url "$candidates" asset_name asset_url
+	# 1 to terminate with error, 2 to terminate with sucess, 0 to carry on
 	local candidates_in=$1
 	local -n asset_name_out=$2
 	local -n asset_url_out=$3
@@ -119,7 +120,7 @@ select_candidate_url() {
 		asset_name_out=${selected%%$'\t'*}
 
 		while true; do
-			if ! read -r -p "Selected asset: $asset_name_out. Is that correct? [y/n/q] " reply; then 
+			if ! read -r -p "Selected asset: $asset_name_out. Is that correct? [y/n/q] " reply; then
 				return 1
 			fi
 

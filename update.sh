@@ -2,7 +2,7 @@ update_all() {
 	print_lines
 	local failures=0
 	for dir in "$programs_dir"/*; do
-		if ! [[ -f $dir/metaGRUfile ]]; then
+		if ! [[ -f $dir/metaGRMfile ]]; then
 			continue
 		fi
 		if ! update_one "$dir"; then
@@ -16,39 +16,6 @@ update_all() {
 		return 1
 	fi
  }
-
-read_metadata() {
-	# called as: read_metadata $dir owner project perversion asset_name
-	local dir=$1
-	local -n owner_out=$2
-	local -n project_out=$3
-	local -n version_out=$4
-	local -n asset_name_out=$5
-	local metadatafile var
-
-	if ! metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null); then
-		return 1
-	fi
-	if ! owner_out=$(grep '^Owner:' <<< "$metadatafile" | sed 's|Owner:||'); then
-		return 1
-	fi
-	if ! project_out=$(grep '^Project:' <<< "$metadatafile" | sed 's|Project:||'); then
-		return 1
-	fi
-	if ! version_out=$(grep '^Version:' <<< "$metadatafile" | sed 's|Version:||'); then
-		return 1
-	fi
-	if ! asset_name_out=$(grep '^AssetName:' <<< "$metadatafile" | sed 's|AssetName:||' ); then
-		return 1
-	fi
-
-	for var in "$owner_out" "$project_out" "$version_out" "$asset_name_out" ;do
-		if [[ -z "$var" ]]; then
-			printerr "empty metadata field"
-			return 1
-		fi
-	done
-}
 
 update_one() {
 	# called as: update_one "$dir"
@@ -96,10 +63,11 @@ update_one() {
 		return 1
 	fi
 
-	 select_candidate_url "$candidates" asset_name asset_url || {
+	 if select_candidate_url "$candidates" asset_name asset_url; then :
+	 else
 		[[ "$?" -eq 2 ]] && return 0
 		return 1
-	}
+	 fi
 
 	if ! install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion"; then
 		status=1

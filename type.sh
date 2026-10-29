@@ -40,10 +40,9 @@ type_reslution() {
 				printerr "failed to move $temppath_in to $newpath_in"
 				return 1
 			fi
-			return 0
 			;;
 
-		*) printf '\nunfamiliar type\n' >&2;
+		*) printf '\nunfamiliar/unsupported type: %s\n' "$filetype" >&2;
 			while true; do
 				read -r -n 1 -p "This Package will be removed, unlesss you want to install it as it. install? (y/n): " reply || return 1
 				case "${reply,,}" in
@@ -52,7 +51,7 @@ type_reslution() {
 							printerr "failed to move $temppath_in to $newpath_in"
 							return 1
 						fi
-						return 0
+						break
 					;;
 					"n") return 1;;
 					*) printerr "try again";;

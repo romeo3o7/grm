@@ -46,22 +46,14 @@
 
 	printf '\nsuccessfuly installed %s to %s\n' "$project_in" "$program_path_in"
 
-
-	metafilepath="$program_path_in"/metaGRUfile
-	if [[ -e "$metafilepath" ]] || [[ -L "$metafilepath" ]]; then
-		printerr 'meta file already exists. skipping creation of metadata. do it manually'
+	if write_metadata "$program_path_in" "$owner_in" "$project_in" "$version_in" "$asset_name_in"; then :
+	else
+		printerr "metadata failed.. attempting to restore the old directory"
+		mv "$temp/$project_in.$owner_in" "$program_path_in"
 		return 1
 	fi
 
-	if ! printf 'Owner:%s\nProject:%s\nVersion:%s\nAssetName:%s\n' "$owner_in" "$project_in" "$version_in" "$asset_name_in" > "$metafilepath"; then
-		printerr "failed to Write to metadata file"
-		return 1
-	fi
-
-	if ! binpath=$(find "$program_path_in" -type d -name bin 2>/dev/null); then
-		return 1
-	fi
-	if [[ -n "$binpath" ]]; then
-		printf '\nbin path %s\n' "$binpath"
+	if prob_bin "$program_path_in"; then :
+	else return $?
 	fi
 }

@@ -7,24 +7,9 @@ usage() {
 	printf '\tlist\t\t+{} List Availabe Package Names\n\tinstall\t\t+{url} Installs The Remote Repo\ngrm\tupdate_all\t+{} Updates All Registered Programs\n\tupdate_one\t+{package name} Updates The Package\n'
 }
 
-fetch_latest() {
-	# called as: fetch_latest $owner $project
-	local owner_in=$1
-	local project_in=$2
-	curl --connect-timeout 3 --max-time 10 --show-error -fsS "https://api.github.com/repos/$owner_in/$project_in/releases/latest"
-}
-
 cleanup() {
 	if [[ -n $temp ]]; then rm -rf -- "$temp"; fi
 	if [[ -n $newpath ]]; then rm -rf -- "$newpath"; fi
-}
-list_packages() {
-	local metadatafile version dir
-	for dir in "$programs_dir/"/*; do
-		metadatafile=$(cat "$dir/metaGRUfile" 2>/dev/null) || continue
-		version=$(grep '^Version:' <<< "$metadatafile" | sed 's|Version:||' | tr -d '\n') || continue
-		printf '%s: %s\n' "${dir##*/}" "$version"
-	done
 }
 
 print_lines(){
@@ -38,4 +23,43 @@ print_lines(){
 		printf '='
 	done
 	printf ']\n'
+}
+
+prompt_name() {
+	local reply
+	local valid='^[A-Za-z0-9_][A-Za-z0-9._-]*$'
+
+	while true; do
+		read -r -p "name for the link (q to cancel): " reply || return 1
+		if [[ ${reply,,} == q ]]; then return 2
+		fi
+		if [[ ! $reply =~ $valid ]]; then
+			printerr "not allowed";
+			continue
+		fi
+		if (( ${#reply} >= 10 )); then
+			printerr "name too long";
+			continue
+		fi
+		printf '%s\n' "$reply"
+		return 0
+	done
+}
+
+confirmation() {
+	# confirmation "msg" "prompt"
+	# best called inside a loop, and case $? 0) break 2) contiune *) return 1
+	local msg=$1 prompt=$2 reply
+	if [[ -z $msg && -z $prompt ]]; then return 1
+	fi
+	printf '\n%s\n\n' "$msg" >&2
+
+	while true; do
+		read -r -p "$prompt" reply || return 1
+		case "${reply,,}" in
+			y)   return 0 ;;
+			n|q) return 2 ;;
+			*)   printerr "Invalid choice" ;;
+		esac
+	done
 }
