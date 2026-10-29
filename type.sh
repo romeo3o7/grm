@@ -40,6 +40,7 @@ type_reslution() {
 				printerr "failed to move $temppath_in to $newpath_in"
 				return 1
 			fi
+			chmod +100 "$newpath_in"/*
 			;;
 
 		*) printf '\nunfamiliar/unsupported type: %s\n' "$filetype" >&2;

@@ -3,13 +3,15 @@ prob_bin() {
 	local root=$1 reply selected binName i
 	local -a candidates=()
 
-	if (( ${#candidates[@]} == 0 )); then
-		mapfile -d '' -t candidates < <(
-			find "$root" -maxdepth 4 -type d -name bin -prune \
-				-exec find {} -maxdepth 1 \( -type f -o -type l \) -executable -print0 \; \
-				2>/dev/null
-		)
+	if root=$(realpath -- "$root"); then :
+	else return 1
 	fi
+
+	mapfile -d '' -t candidates < <(
+		find "$root" -maxdepth 4 -type d -name bin -prune \
+			-exec find {} -maxdepth 1 \( -type f -o -type l \) -executable -print0 \; \
+			2>/dev/null
+	)
 
 	if (( ${#candidates[@]} == 0 )); then
 		mapfile -d '' -t candidates < <(
