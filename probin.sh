@@ -1,28 +1,35 @@
-prob_bin() {
-	# prob_bin $root
-	local root=$1 reply selected binName i
-	local -a candidates=()
+select_binary() {
+	# select_binary $root outvar
+	# sets outvar to the chosen executable's path RELATIVE to root (that is what we store,
+	# so the link can be rebuilt after every update). returns 0 ok, 1 error, 2 cancelled, 3 none found
+	local root=$1 reply selected i path
+	local -n rel_out=$2
+	local -a found=() candidates=()
 
-	if root=$(realpath -- "$root"); then :
-	else return 1
+	if ! root=$(realpath -- "$root"); then
+		return 1
 	fi
 
-	mapfile -d '' -t candidates < <(
+	# sort -z: find returns directory order, we want a menu that looks the same every time
+	mapfile -d '' -t found < <(
 		find "$root" -maxdepth 4 -type d -name bin -prune \
 			-exec find {} -maxdepth 1 \( -type f -o -type l \) -executable -print0 \; \
-			2>/dev/null
+			2>/dev/null | sort -z
 	)
 
-	if (( ${#candidates[@]} == 0 )); then
-		mapfile -d '' -t candidates < <(
-			find "$root" -maxdepth 1 \( -type f -o -type l \) -executable -print0 2>/dev/null
+	if (( ${#found[@]} == 0 )); then
+		mapfile -d '' -t found < <(
+			find "$root" -maxdepth 2 -type f -executable -print0 2>/dev/null | sort -z
 		)
 	fi
 
-	if (( ${#candidates[@]} )); then :
-	else
+	for path in "${found[@]}"; do
+		candidates+=("${path#"$root"/}")
+	done
+
+	if (( ${#candidates[@]} == 0 )); then
 		printerr "no executables found"
-		return 2
+		return 3
 	fi
 
 	if (( ${#candidates[@]} == 1 )); then
@@ -44,10 +51,13 @@ prob_bin() {
 			if [[ $reply =~ ^[0-9]+$ ]] &&
 			   (( 10#$reply >= 1 && 10#$reply <= ${#candidates[@]} )); then
 				selected=${candidates[10#$reply - 1]}
-				confirmation "you selected $selected" "is that okay? [y/n/q] "
-				case $? in
+				if confirmation "you selected $selected" "is that okay? [y/n/q] "; then i=0
+				else i=$?
+				fi
+				case $i in
 					0) break ;;
 					2) continue ;;
+					3) return 2 ;;
 					*) return 1 ;;
 				esac
 			fi
@@ -55,17 +65,48 @@ prob_bin() {
 		done
 	fi
 
-	if binName=$(prompt_name); then :
+	rel_out=$selected
+}
+
+choose_link() {
+	# choose_link $root $final_program_path $default_name outvar
+	# asks which binary and which link name; outvar becomes "linkname:relative/path".
+	# Nothing on disk is touched here, so cancelling is free.
+	local root=$1 final=$2 default=$3 rel name
+	local -n entry_out=$4
+
+	if select_binary "$root" rel; then :
 	else return $?
 	fi
 
-	if mkdir -p "$HOME/bin"; then :
-	else return 1
+	if name=$(prompt_name "$default" "$final"); then :
+	else return $?
 	fi
 
-	if ln -s -- "$selected" "$HOME/bin/$binName"; then :
-	else return 1
+	entry_out="$name:$rel"
+}
+
+link_one() {
+	# link_one $program_path "linkname:relative/path"
+	local program_path_in=$1 entry=$2 name rel target
+	name=${entry%%:*}
+	rel=${entry#*:}
+	target="$bin_dir/$name"
+
+	if ! mkdir -p -- "$bin_dir"; then
+		printerr "cannot create $bin_dir"
+		return 1
 	fi
 
-	printf 'linked %s -> %s\n' "$HOME/bin/$binName" "$selected"
+	# replace our own old symlink, but never clobber a real file
+	if [[ -e $target && ! -L $target ]]; then
+		printerr "$target exists and is not a symlink, leaving it alone"
+		return 1
+	fi
+
+	if ! ln -sfn -- "$program_path_in/$rel" "$target"; then
+		return 1
+	fi
+
+	printf 'linked %s -> %s/%s\n' "$target" "$program_path_in" "$rel"
 }

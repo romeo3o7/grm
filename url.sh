@@ -1,14 +1,15 @@
 install_from_url() {
 	#called as: install_from_url "$url"
 	local url=$1
-	local owner project github_json latversion candidates dir asset_name asset_url reply status=0
+	local owner project github_json latversion candidates asset_name asset_url asset_digest reply program_path rc
+	local old_owner old_project old_version old_asset
+	local -a links=()
 
 	if ! parse_github_url "$url" owner project; then
 		return 1
 	fi
 
 	if ! github_json=$(fetch_latest "$owner" "$project"); then
-		printerr "$project: no response from github"
 		return 1
 	fi
 
@@ -22,41 +23,40 @@ install_from_url() {
 		return 1
 	fi
 
-	if select_candidate_url "$candidates" asset_name asset_url; then :
-	else
-		status=$?
-		[[ $status -eq 2 ]] && return 0
-		return 1
-	fi
+	rc=0
+	select_candidate_url "$candidates" asset_name asset_url asset_digest || rc=$?
+	case $rc in
+		0) ;;
+		2) return 0 ;;
+		*) return 1 ;;
+	esac
 
-	local program_path="$programs_dir/$project"."$owner"
-	if ! mkdir "$program_path" 2>/dev/null; then
-		if ! [[ -d "$programs_dir" ]]; then
-			printerr "parent folder $programs_dir is not found"
-			return 1
-		fi
+	program_path="$programs_dir/$project.$owner"
 
-		printf 'Establishing a New Home For the Program Failed Due To Collision\n%s Exits\n' "$program_path"
-		printf 'Should it Be Used Anyway? All Contens Inside will be removed..'
+	# nothing is created or deleted here any more: the old copy stays until the new one is complete
+	if [[ -e $program_path || -L $program_path ]]; then
+		printf '%s already exists. It is kept until the new copy is ready, then replaced.\n' "$program_path"
 		while true; do
-			if ! read -r -p "[y/n]?" reply; then
+			if ! read -r -p "Replace it? [y/n] " reply; then
 				return 1
 			fi
 			case ${reply,,} in
-				y)
-					break
-				;;
-				n) return 0;;
-				*) printerr "unkown input";;
+				y) break ;;
+				n) return 0 ;;
+				*) printerr "unkown input" ;;
 			esac
 		done
+		# a reinstall keeps the links the package already had
+		read_metadata "$program_path" old_owner old_project old_version old_asset links 2>/dev/null || links=()
 	fi
 
-	if ! install "$asset_name" "$asset_url" "$program_path" "$owner" "$project" "$latversion"; then
-		status=1
-	fi
-
-	return "$status"
+	rc=0
+	install_package "$asset_name" "$asset_url" "$asset_digest" "$program_path" "$owner" "$project" "$latversion" links || rc=$?
+	case $rc in
+		0) return 0 ;;
+		2) printf 'cancelled, nothing was changed\n'; return 0 ;;
+		*) return 1 ;;
+	esac
 }
 
 parse_github_url() {
@@ -68,7 +68,7 @@ parse_github_url() {
 
 	case "$url_in" in
 		https://github.com/*) rest=${url_in#https://github.com/} ;;
-		*) printerr "not a https://github.com/ url"; return 1 ;;
+		*) printerr "not github url"; return 1 ;;
 	esac
 
 	rest=${rest%%[?#]*}    # drop ?query and #fragment
@@ -81,6 +81,7 @@ parse_github_url() {
 	case "$p" in *[!A-Za-z0-9._-]*) printerr "bad repo name"; return 1 ;; esac
 	[[ $o == . || $o == .. || $p == . || $p == .. ]] && { printerr "bad name"; return 1; }
 
-	owner_out=$o
-	project_out=$p
+	# github ignores case, so Foo/Tool and foo/tool must land in the same directory
+	owner_out=${o,,}
+	project_out=${p,,}
 }
