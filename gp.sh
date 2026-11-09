@@ -85,19 +85,23 @@ prompt_name() {
 
 confirmation() {
 	# confirmation "msg" "prompt"
-	# returns 0 for yes, 2 for no, 3 for quit, 1 on EOF/error
+	# returns 0 for yes, 2 for no,1 on EOF/error
 	# call it as: if confirmation ...; then rc=0; else rc=$?; fi   (a bare call dies under set -e)
 	local msg=$1 prompt=$2 reply
-	if [[ -z $msg && -z $prompt ]]; then return 1
+	if [[ -z $msg || -z $prompt ]]; then
+		printerr "confirmation: empty msg or prompt"
+		return 1
 	fi
 	printf '\n%s\n\n' "$msg" >&2
 
 	while true; do
-		read -r -p "$prompt" reply || return 1
+		if ! read -r -p "$prompt" reply; then
+			printerr "confirmation: read"
+			return 1
+		fi
 		case "${reply,,}" in
 			y) return 0 ;;
-			n) return 2 ;;
-			q) return 3 ;;
+			n) return 1 ;;
 			*) printerr "Invalid choice" ;;
 		esac
 	done

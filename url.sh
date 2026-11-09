@@ -36,16 +36,10 @@ install_from_url() {
 	# nothing is created or deleted here any more: the old copy stays until the new one is complete
 	if [[ -e $program_path || -L $program_path ]]; then
 		printf '%s already exists. It is kept until the new copy is ready, then replaced.\n' "$program_path"
-		while true; do
-			if ! read -r -p "Replace it? [y/n] " reply; then
-				return 1
-			fi
-			case ${reply,,} in
-				y) break ;;
-				n) return 0 ;;
-				*) printerr "unkown input" ;;
-			esac
-		done
+		if ! confirmation "Replace it?" "[y/n]"; then
+			return 0
+		fi
+
 		# a reinstall keeps the links the package already had
 		read_metadata "$program_path" old_owner old_project old_version old_asset links 2>/dev/null || links=()
 	fi
