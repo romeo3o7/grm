@@ -1,3 +1,4 @@
+import os
 import requests
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,12 +13,12 @@ class Package:
 
 def gtlatest(session,pkg):
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
+    print(f"quering for {pkg.name} latest release; current : {pkg.version}")
     try:
         res = session.get(url,timeout=5)
         res.raise_for_status()
         resJson = res.json()
-        remoteVersion = resJson.get("tag_name")
-        return remoteVersion
+        return resJson
     except requests.exceptions.RequestException as e:
         print(f"The request failed: {e}")
         return None
@@ -67,11 +68,12 @@ def rdmeta(rootdir):
 
     return p
 
-def main():
+def up_all():
     with requests.Session() as session:
         session.headers.update({
             "User-Agent": "grm/1.0",
-            "Accept": "application/vnd.github+json"
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}"
         })
         tgPaths = rtpkgs()
         for path in tgPaths:
@@ -79,7 +81,15 @@ def main():
             if pkg is None:
                 continue
 
-            remote_version = gtlatest(session, pkg)
+            resJson = gtlatest(session, pkg)
+            if resJson is None:
+                print(f"json failed for {pkg.name}")
+                continue
 
+            remoteVersion = resJson.get("tag_name")
+            if remoteVersion == pkg.version:
+                print(f"{pkg.name} is up to date")
+            else:
+                print(f"new release is found : {remoteVersion}")
 if __name__ == "__main__":
-    main()
+    up_all()
