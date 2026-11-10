@@ -2,7 +2,7 @@ import os
 import requests
 from dataclasses import dataclass
 from pathlib import Path
-from metadata import rdmeta
+from metadata import rmd
 from remote import gtlatest
 
 @dataclass
@@ -18,10 +18,11 @@ def confirmation(msg,prompt):
     while True:
         reply = input(prompt )
         if len(reply) == 1:
-            if reply == 'y':
-                return 1
-            if reply == 'n':
-                return None
+            reply = reply.strip().lower()
+            if reply == 'y' or reply == 'yes':
+                return True
+            if reply == 'n' or reply == 'q':
+                return False
 
 def rtpkgs():
     home = Path.home()
@@ -47,8 +48,8 @@ def up_all():
         tgPaths = rtpkgs()
         for path in tgPaths:
             pkg = Package()
-            rdmeta(path,pkg)
-            if pkg is None:
+            rmstatus = rmd(path,pkg)
+            if rmstatus is None:
                 continue
 
             resJson = gtlatest(session, pkg)
@@ -57,6 +58,8 @@ def up_all():
                 continue
 
             remoteVersion = resJson.get("tag_name")
+            if not remoteVersion:
+                print("could not get latest version")
             if remoteVersion == pkg.version:
                 print(f"{pkg.name} is up to date")
                 continue

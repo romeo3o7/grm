@@ -1,4 +1,4 @@
-def rdmeta(rootdir, p : Package):
+def rmd(rootdir, p : Package):
     # rootdir must be a path object And the caller make sure metaGRMfile exists
     filepath = rootdir / "metaGRMfile"
 
