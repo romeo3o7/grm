@@ -1,10 +1,10 @@
 import os
 import requests
 from dataclasses import dataclass
-from pathlib import Path
-from metadata import ( rmd , rtpkgs)
+from metadata import rmd
+from ppath import rtpkgs
 from remote import gtlatest
-from candidate import retcand
+from candidate import selcand
 from helpers import confirmation
 
 @dataclass
@@ -44,11 +44,8 @@ def up_all():
                 continue
             print(f"new release is found : {remoteVersion}")
             if confirmation("do you wish to update?" , "[y/n]:"):
-                candidates = retcand(resJson)
-                if not candidates:
-                    print("no candidates")
-                    continue
-                print("updating")
+                candidate = selcand(resJson)
+                print(f"updating {candidate["name"]} by downloading from {candidate["browser_download_url"]}")
 
 if __name__ == "__main__":
     up_all()

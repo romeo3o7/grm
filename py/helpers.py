@@ -8,5 +8,3 @@ def confirmation(msg,prompt):
                 return True
             if reply == 'n' or reply == 'q':
                 return False
-
-
