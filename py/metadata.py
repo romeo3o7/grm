@@ -25,6 +25,19 @@ def rmd(rootdir, p : Package):
 
     if not p.owner or not p.version or not p.name:
         print("rdmeta: Important fields are not found")
-        return None
+        return False
 
-    return p
+    return True
+
+def rtpkgs():
+    home = Path.home()
+    programsPath = home / "Programs"
+
+    if not programsPath.is_dir():
+        print("Programs location storage doesn't exit")
+        return []
+    targetDir = []
+    for packagePath in programsPath.iterdir():
+        if packagePath.is_dir() and (packagePath / "metaGRMfile").is_file():
+            targetDir.append(packagePath)
+    return targetDir

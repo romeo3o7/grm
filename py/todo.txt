@@ -1,0 +1,4 @@
+- candidate picker module [done]
+- install module
+- extraction module
+- many threads to make the http request concuretly
