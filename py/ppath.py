@@ -1,7 +1,34 @@
+from models import Package
 from pathlib import Path
 import tempfile
 import shutil
+import os
 import atexit
+
+def mkpkgpath(pkg: Package):
+    programsPath = getPpath()
+    pkgpath = programsPath / f"{pkg.name}.{pkg.owner}"
+    pkgpath.mkdir(parents=True, exist_ok=True)
+    return pkgpath
+
+def stageins(pkgpath : Path, tfilepath: Path, name):
+    stagedPath = pkgpath.with_suffix(pkgpath.suffix + ".stage")
+    if stagedPath.is_dir():
+        shutil.rmtree(stagedPath)
+    stagedPath.mkdir(parents=True, exist_ok=True)
+    print(f"created a stage path : {stagedPath}")
+    sfilepath = stagedPath / name
+    print(f"moving {tfilepath} -> {sfilepath}")
+    shutil.move(tfilepath, sfilepath)
+    return stagedPath
+
+def actins(stagePath, name):
+    pkgpath = stagePath.with_suffix("")
+    if pkgpath.is_dir():
+        print(f"removing {pkgpath}")
+        shutil.rmtree(pkgpath)
+    pkgpath.mkdir(parents=True, exist_ok=True)
+    os.replace(stagePath,pkgpath)
 
 def getPpath():
     home = Path.home()
@@ -20,7 +47,7 @@ def rtpkgs():
         print("Programs location storage doesn't exit")
         return []
     targetDir = []
-    for packagePath in programsPath.iterdir():
-        if packagePath.is_dir() and (packagePath / "metaGRMfile").is_file():
-            targetDir.append(packagePath)
+    for pkgpath in programsPath.iterdir():
+        if pkgpath.is_dir() and (pkgpath / "metaGRMfile").is_file():
+            targetDir.append(pkgpath)
     return targetDir

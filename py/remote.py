@@ -1,28 +1,35 @@
-import shutil
 import os
 import requests
-from ppath import (ctmpdir , getPpath)
+from ppath import (ctmpdir , mkpkgpath, stageins,actins)
 from models import Package
 
-def inremote(session,candidate,pkg: Package):
+def inremote(session,candidate,pkg: Package,packagePath: Path | None = None):
     tpath = ctmpdir()
     name = candidate["name"]
-    installtmp = tpath / f"{name}"
+    tfilepath = tpath / f"{name}"
     url = candidate["browser_download_url"]
-    print(f"Installing to {installtmp}")
-    with session.get(url, stream=True) as req:
+    print(f"Installing -> {tpath}")
+    with session.get(url, stream=True,timeout=10) as req:
         req.raise_for_status()
-        with open(installtmp,"wb") as f:
+        with open(tfilepath,"wb") as f:
             for chunk in req.iter_content(chunk_size=512000):
                 f.write(chunk)
-    tmpsize = os.path.getsize(installtmp)
+
+    print("installing DONE")
+    tmpsize = os.path.getsize(tfilepath)
     if tmpsize != candidate["size"]:
         print(f"data lost, size of temp: {tmpsize}, size of specifed by gh: {candidate["size"]}")
-        return None
-    programsPath = getPpath()
-    installPath = programsPath / "test" / f"{pkg.name}.{pkg.owner}"
-    installPath.mkdir(parents=True, exist_ok=True)
-    shutil.move(installtmp, installPath / name)
+        return False
+
+    if not packagePath:
+        packagePath = mkpkgpath(pkg)
+    # stage, move tfilepath to packagePath with .stage using shutil because across device linking
+    stagedPath = stageins(packagePath,tfilepath,name)
+    # actually move it to the path, stagedPath -> packagePath without .stage suffix + name
+    savedPath = actins(stagedPath,name)
+
+    print("DONE; Asset is installed")
+    return True
 
 def gtlatest(session,pkg):
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"

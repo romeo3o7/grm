@@ -40,8 +40,7 @@ def up_all():
                 if candidate is None:
                     print("Couldn't find candidate")
                     continue
-                print(f"updating {candidate["name"]} by downloading from {candidate["browser_download_url"]}")
-                if inremote(session,candidate,pkg) is None:
+                if not inremote(session,candidate,pkg,path):
                     continue
 
 if __name__ == "__main__":
