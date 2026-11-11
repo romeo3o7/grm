@@ -2,7 +2,7 @@ import os
 import requests
 from metadata import rmd
 from ppath import rtpkgs
-from remote import gtlatest
+from remote import ( gtlatest , inremote )
 from candidate import selcand
 from helpers import confirmation
 from models import Package
@@ -41,6 +41,8 @@ def up_all():
                     print("Couldn't find candidate")
                     continue
                 print(f"updating {candidate["name"]} by downloading from {candidate["browser_download_url"]}")
+                if inremote(session,candidate,pkg) is None:
+                    continue
 
 if __name__ == "__main__":
     up_all()
