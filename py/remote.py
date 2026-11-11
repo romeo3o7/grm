@@ -1,6 +1,8 @@
+import requests
+
 def gtlatest(session,pkg):
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
-    print(f"quering for {pkg.name} latest release; current : {pkg.version}")
+    print(f"Querying for {pkg.name} latest release; current : {pkg.version}")
     try:
         res = session.get(url,timeout=5)
         res.raise_for_status()

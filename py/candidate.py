@@ -5,7 +5,7 @@ def selcand(json):
     candidates = retcand(json)
     if not candidates:
         print("no candidates")
-        return False
+        return None
     for number, asset in enumerate(candidates,start=1):
         print(f"{number}.{asset['name']}")
     while True:
@@ -27,12 +27,13 @@ def retcand(json):
         return []
 
     for asset in json["assets"]:
-        if asset["name"].endswith(tuple(ext)):
+        casset = asset["name"].lower()
+        if casset.endswith(tuple(ext)):
             continue
 
         append = True
         for pattern in patterns:
-            if pattern in asset["name"].lower():
+            if pattern in casset.lower():
                 append = False
                 break
         if append:
