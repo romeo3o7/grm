@@ -1,7 +1,6 @@
 def confirmation(msg,prompt):
-    print(msg)
     while True:
-        reply = input(prompt)
+        reply = input(f"{msg} - {prompt}")
         reply = reply.strip().lower()
         if len(reply) == 1:
             if reply == 'y':

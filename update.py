@@ -16,6 +16,7 @@ def up_all():
         }
     with requests.Session() as session:
         session.headers.update(headers)
+        # rtpkgs checks for dir that have metafile.grm
         tgPaths = rtpkgs()
         for path in tgPaths:
             pkg = Package()
@@ -34,12 +35,16 @@ def up_all():
             if remoteVersion == pkg.version:
                 print(f"{pkg.name} is up to date")
                 continue
-            print(f"new release is found : {remoteVersion}")
+
+            pkg.version = remoteVersion
+            print(f"new release is found : {pkg.version}")
             if confirmation("do you wish to update?" , "[y/n]:"):
                 candidate = selcand(resJson)
                 if candidate is None:
                     print("Couldn't find candidate")
                     continue
+
+                pkg.assetName = candidate["name"]
                 if not inremote(session,candidate,pkg,path):
                     continue
 

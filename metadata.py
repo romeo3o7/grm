@@ -1,8 +1,17 @@
 from models import Package
 
+def wmd(filePath,pkg : Package):
+    # make sure pkg fields are updated
+    with open(filePath,"w",encoding="utf-8") as file:
+        file.write(f"Package:{pkg.name}\n")
+        file.write(f"Owner:{pkg.owner}\n")
+        file.write(f"Version:{pkg.version}\n")
+        file.write(f"AssetName:{pkg.assetName}\n")
+        file.write(f"Link:{pkg.name}\n")
+
+
 def rmd(rootdir, p : Package):
-    # rootdir must be a path object And the caller make sure metaGRMfile exists
-    filepath = rootdir / "metaGRMfile"
+    filepath = rootdir / "metafile.grm"
 
     with open(filepath, "r", encoding="utf-8") as file:
         for line in file:
@@ -16,7 +25,7 @@ def rmd(rootdir, p : Package):
 
             if key == "Owner":
                 p.owner = value
-            elif key == "Project":
+            elif key == "Package":
                 p.name = value
             elif key == "Version":
                 p.version = value

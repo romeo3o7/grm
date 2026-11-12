@@ -16,19 +16,17 @@ def stageins(pkgpath : Path, tfilepath: Path, name):
     if stagedPath.is_dir():
         shutil.rmtree(stagedPath)
     stagedPath.mkdir(parents=True, exist_ok=True)
-    print(f"created a stage path : {stagedPath}")
     sfilepath = stagedPath / name
-    print(f"moving {tfilepath} -> {sfilepath}")
     shutil.move(tfilepath, sfilepath)
     return stagedPath
 
 def actins(stagePath, name):
     pkgpath = stagePath.with_suffix("")
     if pkgpath.is_dir():
-        print(f"removing {pkgpath}")
         shutil.rmtree(pkgpath)
     pkgpath.mkdir(parents=True, exist_ok=True)
     os.replace(stagePath,pkgpath)
+    return pkgpath
 
 def getPpath():
     home = Path.home()
@@ -48,6 +46,6 @@ def rtpkgs():
         return []
     targetDir = []
     for pkgpath in programsPath.iterdir():
-        if pkgpath.is_dir() and (pkgpath / "metaGRMfile").is_file():
+        if pkgpath.is_dir() and (pkgpath / "metafile.grm").is_file():
             targetDir.append(pkgpath)
     return targetDir
