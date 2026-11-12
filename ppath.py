@@ -24,13 +24,14 @@ def stageins(packagedir : Path, tfilepath: Path, name):
     return stagedir
 
 def actins(stagePath, name):
+    oldpkgdir = None
     packagedir = stagePath.with_suffix("")
     if packagedir.is_dir():
         rand = random.randint(10000, 99999)
         oldpkgdir = packagedir.with_name(f"{packagedir.name}.{rand}")
         packagedir.rename(oldpkgdir)
     stagePath.rename(packagedir)
-    if oldpkgdir.is_dir():
+    if oldpkgdir is not None:
         shutil.rmtree(oldpkgdir)
     return packagedir
 
