@@ -1,6 +1,5 @@
 import shutil
 import random
-from platformdirs import user_cache_path
 from models import Package
 from pathlib import Path
 
@@ -10,8 +9,8 @@ def mkpkgdir(pkg: Package):
     packagedir.mkdir(parents=True, exist_ok=True)
     return packagedir
 
-def cstagedir():
-    cachepath = user_cache_path(appname="grm")
+def cachepath(packagedir):
+    cachepath = getPpath() / "cache"
     cachepath.mkdir(parents=True,exist_ok=True)
     return cachepath
 

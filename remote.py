@@ -1,42 +1,13 @@
-import os
 import requests
-from pathlib import Path
-from ppath import (cstagedir , mkpkgdir, stageins,actins)
-from models import Package
-from metadata import wmd
 
-def inremote(session, candidate, pkg: Package, packagedir: Path | None = None):
-    tpath = cstagedir()
-    name = candidate["name"]
-    tfilepath = tpath / f"{name}"
-    url = candidate["browser_download_url"]
-    print(f"Installing -> {tpath}")
+def remfileinstall(session,url,dst):
     with session.get(url, stream=True,timeout=10) as req:
         req.raise_for_status()
-        with open(tfilepath,"wb") as f:
+        with open(dst,"wb") as f:
             for chunk in req.iter_content(chunk_size=512000):
                 f.write(chunk)
+    return dst
 
-    filesize = os.path.getsize(tfilepath)
-    if filesize != candidate["size"]:
-        print(f"data lost, size of temp: {filesize}, size of specifed by gh: {candidate["size"]}")
-        tfilepath.unlink()
-        return False
-
-    # if packages dir not supplied then infer one
-    if not packagedir:
-        packagedir = mkpkgdir(pkg)
-
-    # stage, move tfilepath to packagedir with .stage
-    stagedir = stageins(packagedir,tfilepath,name)
-    # write metadata file
-    mdpath = stagedir / "metafile.grm"
-    wmd(mdpath,pkg)
-    # install
-    savedPath = actins(stagedir,name)
-
-    print("DONE, Package is Installed")
-    return True
 
 def gtlatest(session,pkg):
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"

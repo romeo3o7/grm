@@ -2,7 +2,8 @@ import os
 import requests
 from metadata import rmd
 from ppath import rtpkgs
-from remote import ( gtlatest , inremote )
+from remote import gtlatest
+from install import installpkg
 from candidate import selcand
 from helpers import confirmation
 from models import Package
@@ -20,7 +21,8 @@ def up_all():
         tgPaths = rtpkgs()
         for path in tgPaths:
             pkg = Package()
-            if not rmd(path,pkg):
+            mdfile = path / "metafile.grm"
+            if not rmd(mdfile,pkg):
                 continue
 
             resJson = gtlatest(session, pkg)
@@ -45,7 +47,7 @@ def up_all():
                     continue
 
                 pkg.assetName = candidate["name"]
-                if not inremote(session,candidate,pkg,path):
+                if not installpkg(session,candidate,pkg,path):
                     continue
 
 if __name__ == "__main__":

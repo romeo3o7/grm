@@ -10,9 +10,7 @@ def wmd(filePath,pkg : Package):
         file.write(f"Link:{pkg.name}\n")
 
 
-def rmd(rootdir, p : Package):
-    filepath = rootdir / "metafile.grm"
-
+def rmd(filepath, p : Package):
     with open(filepath, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()

@@ -8,6 +8,8 @@ features:
 - install module[done]
 - write a metadata[done]
 - extraction module
+- url parsing and installation
 - remove any extention that is not an archive or executable 
 - verify checksum
+- last modifed etag remote check
 - many threads to make the http request concuretly
