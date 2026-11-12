@@ -1,6 +1,13 @@
+bugs to fix:
+- candidate names accidently matching package names
+- actins should not delete the old pkg path and mkdir is not needed[fixed]
+- install to .cache instead of temp [fixed]
+
+features:
 - candidate picker module [done]
 - install module[done]
 - write a metadata[done]
 - extraction module
+- remove any extention that is not an archive or executable 
 - verify checksum
 - many threads to make the http request concuretly

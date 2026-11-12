@@ -1,42 +1,44 @@
+import shutil
+import random
+from platformdirs import user_cache_path
 from models import Package
 from pathlib import Path
-import tempfile
-import shutil
-import os
-import atexit
 
-def mkpkgpath(pkg: Package):
+def mkpkgdir(pkg: Package):
     programsPath = getPpath()
-    pkgpath = programsPath / f"{pkg.name}.{pkg.owner}"
-    pkgpath.mkdir(parents=True, exist_ok=True)
-    return pkgpath
+    packagedir = programsPath / f"{pkg.name}.{pkg.owner}"
+    packagedir.mkdir(parents=True, exist_ok=True)
+    return packagedir
 
-def stageins(pkgpath : Path, tfilepath: Path, name):
-    stagedPath = pkgpath.with_suffix(pkgpath.suffix + ".stage")
-    if stagedPath.is_dir():
-        shutil.rmtree(stagedPath)
-    stagedPath.mkdir(parents=True, exist_ok=True)
-    sfilepath = stagedPath / name
-    shutil.move(tfilepath, sfilepath)
-    return stagedPath
+def cstagedir():
+    cachepath = user_cache_path(appname="grm")
+    cachepath.mkdir(parents=True,exist_ok=True)
+    return cachepath
+
+def stageins(packagedir : Path, tfilepath: Path, name):
+    stagedir = packagedir.with_suffix(packagedir.suffix + ".stage")
+    if stagedir.is_dir():
+        shutil.rmtree(stagedir)
+    stagedir.mkdir(parents=True, exist_ok=True)
+    sfilepath = stagedir / name
+    tfilepath.replace(sfilepath)
+    return stagedir
 
 def actins(stagePath, name):
-    pkgpath = stagePath.with_suffix("")
-    if pkgpath.is_dir():
-        shutil.rmtree(pkgpath)
-    pkgpath.mkdir(parents=True, exist_ok=True)
-    os.replace(stagePath,pkgpath)
-    return pkgpath
+    packagedir = stagePath.with_suffix("")
+    if packagedir.is_dir():
+        rand = random.randint(10000, 99999)
+        oldpkgdir = packagedir.with_name(f"{packagedir.name}.{rand}")
+        packagedir.rename(oldpkgdir)
+    stagePath.rename(packagedir)
+    if oldpkgdir.is_dir():
+        shutil.rmtree(oldpkgdir)
+    return packagedir
 
 def getPpath():
     home = Path.home()
     programsPath = home / "Programs"
     return programsPath
-
-def ctmpdir():
-    tdir = tempfile.mkdtemp()
-    atexit.register(shutil.rmtree, tdir, ignore_errors=True)
-    return Path(tdir)
 
 def rtpkgs():
     programsPath = getPpath()
@@ -45,7 +47,7 @@ def rtpkgs():
         print("Programs location storage doesn't exit")
         return []
     targetDir = []
-    for pkgpath in programsPath.iterdir():
-        if pkgpath.is_dir() and (pkgpath / "metafile.grm").is_file():
-            targetDir.append(pkgpath)
+    for packagedir in programsPath.iterdir():
+        if packagedir.is_dir() and (packagedir / "metafile.grm").is_file():
+            targetDir.append(packagedir)
     return targetDir
