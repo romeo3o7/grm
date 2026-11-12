@@ -11,6 +11,7 @@ def wmd(filePath,pkg : Package):
 
 
 def rmd(filepath, p : Package):
+    cn = 0
     with open(filepath, "r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()
@@ -20,21 +21,27 @@ def rmd(filepath, p : Package):
             key, value = line.split(':', 1)
             key = key.strip()
             value = value.strip()
-
             if key == "Owner":
                 p.owner = value
+                cn += 1
             elif key == "Package":
                 p.name = value
+                cn += 1
             elif key == "Version":
                 p.version = value
+                cn += 1
             elif key == "AssetName":
                 p.assetName = value
+                cn += 1
             elif key == "Link":
                 p.link = value
+                cn += 1
 
     if not p.owner or not p.version or not p.name:
-        print("rdmeta: Important fields are not found")
+        print(f"rdmeta: Important fields are not found\nProblematic file {filepath}")
+        return False
+    if cn > 5:
+        print(f"duplicit key, please resolve it\nProblematic file {filepath}")
         return False
 
     return True
-

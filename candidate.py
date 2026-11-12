@@ -57,7 +57,6 @@ def retpattern():
             "windows", "win32" , "win64",
             "darwin" , "macos" , "osx",
             "sha256" , "freebsd" , "netbsd",
-            "ios"
         ))
 
     # arch filtering

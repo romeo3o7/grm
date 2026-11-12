@@ -18,11 +18,12 @@ def up_all():
     with requests.Session() as session:
         session.headers.update(headers)
         # rtpkgs checks for dir that have metafile.grm
-        tgPaths = rtpkgs()
-        for path in tgPaths:
+        tgPaths , programsdir = rtpkgs()
+        for pkgdir in tgPaths:
             pkg = Package()
-            mdfile = path / "metafile.grm"
+            mdfile = pkgdir / "metafile.grm"
             if not rmd(mdfile,pkg):
+                print("grm file protocol broken, not updating the package")
                 continue
 
             resJson = gtlatest(session, pkg)
@@ -47,7 +48,7 @@ def up_all():
                     continue
 
                 pkg.assetName = candidate["name"]
-                if not installpkg(session,candidate,pkg,path):
+                if not installpkg(session,candidate,pkg,programsdir,pkgdir):
                     continue
 
 if __name__ == "__main__":

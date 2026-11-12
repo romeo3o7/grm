@@ -4,12 +4,12 @@ from remote import remfileinstall
 from models import Package
 from metadata import wmd
 
-def installpkg(session, candidate, pkg: Package, packagedir: Path | None = None):
+def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path | None = None):
     # if packages dir not supplied then infer one
     if not packagedir:
-        packagedir = mkpkgdir(pkg)
+        packagedir = mkpkgdir(pkg,programsdir)
 
-    cpath = cachepath(packagedir)
+    cpath = cachepath(programsdir)
     name = candidate["name"]
     tfilepath = cpath / f"{name}"
     url = candidate["browser_download_url"]
