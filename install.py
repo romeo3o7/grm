@@ -3,7 +3,7 @@ from extract import extract
 from remote import remfileinstall
 from models import Package
 from metadata import wmd
-from helpers import deldir
+from gp import deldir
 from ppath import (cachepath , sanpkgdir)
 from transaction import (stagenew,stageold,restorepkg)
 

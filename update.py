@@ -3,12 +3,13 @@ from ppath import rtpkgs
 from remote import gtlatest
 from install import installpkg
 from candidate import selcand
-from helpers import confirmation
+from gp import (confirmation,buildwall)
 from models import Package
 
 def upall(session):
     tgPaths , programsdir = rtpkgs()
     for pkgdir in tgPaths:
+        buildwall()
         pkg = Package()
         mdfile = pkgdir / "metafile.grm"
         if not rmd(mdfile,pkg):

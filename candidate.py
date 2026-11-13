@@ -1,5 +1,5 @@
 import platform
-from helpers import confirmation
+from gp import confirmation
 
 def selcand(json,prevcand: str | None = None):
     candidates = []

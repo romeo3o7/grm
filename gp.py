@@ -22,3 +22,13 @@ def confirmation(msg,prompt):
             return True
         if reply == 'n' or reply == 'q':
             return False
+def buildwall():
+    twindowsize = shutil.get_terminal_size()
+    width = twindowsize.columns
+
+    wall = width // 2
+
+    for i in range(wall):
+        print("=", end="")
+
+    print(">")

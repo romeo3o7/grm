@@ -21,7 +21,6 @@ Low Priority {
 	- last modifed etag remote check
 	- verify checksum
 	- multithreading for version lookup
-	- lines seprating packages during update
 	- usgae report
 }
 ----------------------------------
@@ -42,4 +41,5 @@ Features {
 	- write a metadata
 	- install module
 	- Progress bar during installation
+	- lines seprating packages during update
 }
