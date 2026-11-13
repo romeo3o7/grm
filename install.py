@@ -1,8 +1,9 @@
 from pathlib import Path
-from ppath import (cachepath , mkpkgdir, stageins,actins)
 from remote import remfileinstall
 from models import Package
 from metadata import wmd
+from ppath import (cachepath , mkpkgdir)
+from transaction import (stageins,actins)
 
 def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path | None = None):
     # if packages dir not supplied then infer one
@@ -15,7 +16,8 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
     url = candidate["browser_download_url"]
 
     print(f"Installing... ")
-    remfileinstall(session,url,tfilepath)
+    if not remfileinstall(session,url,tfilepath):
+        return False
 
     filesize = tfilepath.stat().st_size
     if filesize != candidate["size"]:
@@ -23,13 +25,15 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
         tfilepath.unlink()
         return False
 
-
-    # stage, move tfilepath to packagedir with .stage
+    # transaction
     stagedir = stageins(packagedir,tfilepath,name)
-    # write metadata file
+    if not stagedir:
+        return False
+
     mdpath = stagedir / "metafile.grm"
-    wmd(mdpath,pkg)
-    # install
+    if not wmd(mdpath,pkg):
+        return False
+
     savedPath = actins(stagedir,name)
 
     print(f"DONE, {pkg.name} is Installed")

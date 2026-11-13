@@ -1,33 +1,34 @@
 Bugs:
+High Priority {
+}
+
 Low Priority {
 	- candidate names accidently matching package names (retpattern)
 }
-
-High Priority {
-	- rename back the old pakage diretory to its original name (actins)
-}
 ----------------------------------
 Features:
-Low Priority {
-	- remove any extention that is not an archive or executable
-	- last modifed etag remote check
-	- verify checksum
-	- multithreading for version lookup
-}
-
 High Priority {
 	- extraction module
 	- url parsing and installation
 	- binary lookup
 	- symlinking
+}
+
+Low Priority {
+	- remove any extention that is not an archive or executable
+	- last modifed etag remote check
+	- verify checksum
+	- multithreading for version lookup
 	- Progress bar during installation
+	- lines seprating packages during update
 }
 ----------------------------------
 Completed:
 bugs {
 	- install to .cache instead of temp [fixed]
 	- actins should not delete the old pkg path and mkdir is not needed[fixed]
-	- duplicate keys in metafile
+	- duplicate keys in metafile[fixed]
+	- rename back the old pakage diretory to its original name (actins) [fixed]
 }
 
 Features {

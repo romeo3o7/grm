@@ -22,9 +22,6 @@ def selcand(json):
 def retcand(json):
     candidates = []
     patterns, ext = retpattern()
-    if not patterns:
-        print("unsupported host")
-        return []
 
     for asset in json["assets"]:
         casset = asset["name"].lower()

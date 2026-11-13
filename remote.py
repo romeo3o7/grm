@@ -1,11 +1,22 @@
 import requests
+from pathlib import Path
 
 def remfileinstall(session,url,dst):
-    with session.get(url, stream=True,timeout=10) as req:
-        req.raise_for_status()
-        with open(dst,"wb") as f:
-            for chunk in req.iter_content(chunk_size=512000):
-                f.write(chunk)
+    try:
+        with session.get(url, stream=True,timeout=10) as req:
+            req.raise_for_status()
+            downloaded = 0
+            with open(dst,"wb") as f:
+                for chunk in req.iter_content(chunk_size=512000):
+                    f.write(chunk)
+                    downloaded += len(chunk) / 1048576
+                    print(f"\rDownloaded : {downloaded} MB", end="", flush=True)
+            print()
+    except:
+        print("file remote installation failed mid install")
+        dst.unlink(missing_ok=True)
+        return None
+
     return dst
 
 
