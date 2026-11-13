@@ -1,12 +1,11 @@
 import requests
 from pathlib import Path
 
-def remfileinstall(session,url,dst):
+def remfileinstall(session,url,dst,candsize):
     try:
         with session.get(url, stream=True,timeout=10) as req:
             req.raise_for_status()
-            tsize = int(req.headers.get("content-length", 0))
-            print(f"total size = {tsize// 1048576} MB", flush=True)
+            print(f"total size = {candsize// 1048576} MB", flush=True)
             downloaded = 0
             with open(dst,"wb") as f:
                 for chunk in req.iter_content(chunk_size=512000):

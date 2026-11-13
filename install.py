@@ -12,16 +12,17 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
 
     cpath = cachepath(programsdir)
     name = candidate["name"]
+    candsize = candidate["size"]
     tfilepath = cpath / f"{name}"
     url = candidate["browser_download_url"]
 
     print(f"Installing... ")
-    if not remfileinstall(session,url,tfilepath):
+    if not remfileinstall(session,url,tfilepath,candsize):
         return False
 
     filesize = tfilepath.stat().st_size
-    if filesize != candidate["size"]:
-        print(f"data lost, size of temp: {filesize}, size of installed file specifed by gh: {candidate["size"]}")
+    if filesize != candsize:
+        print(f"data lost, size of temp: {filesize}, size of installed file specifed by gh: {candsize}")
         tfilepath.unlink()
         return False
 
@@ -34,7 +35,8 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
     if not wmd(mdpath,pkg):
         return False
 
-    savedPath = actins(stagedir,name)
+    if not actins(stagedir,name):
+        return False
 
     print(f"DONE, {pkg.name} is Installed")
     return True

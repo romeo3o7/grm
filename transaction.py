@@ -30,10 +30,11 @@ def actins(stagePath, name):
     try:
         stagePath.rename(packagedir)
     except:
+        print("installation failed")
         if oldpkgdir is not None:
-            print(f"installation failed, reversing the transaction\n{oldpkgdir} -> {packagedir}")
+            print(f"reversing the transaction\n{oldpkgdir} -> {packagedir}")
             oldpkgdir.rename(packagedir)
-            return oldpkgdir
+        return None
 
     if oldpkgdir is not None:
         shutil.rmtree(oldpkgdir)
