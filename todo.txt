@@ -12,6 +12,7 @@ High Priority {
 	- url parsing and installation
 	- binary lookup
 	- symlinking
+	- parse arguments
 }
 
 Low Priority {
@@ -20,6 +21,7 @@ Low Priority {
 	- verify checksum
 	- multithreading for version lookup
 	- lines seprating packages during update
+	- usgae report
 }
 ----------------------------------
 Completed:
@@ -34,5 +36,5 @@ Features {
 	- candidate picker module [done]
 	- write a metadata[done]
 	- install module[done]
-	- Progress bar during installation
+	- Progress bar during installation[semi-done]
 }
