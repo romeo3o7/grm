@@ -1,11 +1,36 @@
 import platform
 from helpers import confirmation
 
-def selcand(json):
-    candidates = retcand(json)
+def selcand(json,prevcand: str | None = None):
+    candidates = []
+    patterns, ext = retpattern()
+
+    for asset in json["assets"]:
+        currentAsset = asset["name"].lower()
+        if prevcand is not None:
+            if currentAsset == prevcand:
+                if confirmation(f"Previous candidate seems to match, use {prevcand}?", "[y/n]"):
+                    candidates.append(asset)
+                    break
+
+        if currentAsset.endswith(tuple(ext)):
+            continue
+
+        append = True
+        for pattern in patterns:
+            if pattern in currentAsset.lower():
+                append = False
+                break
+        if append:
+            candidates.append(asset)
+
     if not candidates:
         print("no candidates")
         return None
+
+    if len(candidates) == 1:
+        return candidates[0]
+
     for number, asset in enumerate(candidates,start=1):
         print(f"{number}.{asset['name']}")
     while True:
@@ -17,25 +42,6 @@ def selcand(json):
                 if confirmation(f"you have choosen: {thechosenone["name"]}, is that ok?" , "[y/n]:"):
                     break
     return thechosenone
-
-
-def retcand(json):
-    candidates = []
-    patterns, ext = retpattern()
-
-    for asset in json["assets"]:
-        casset = asset["name"].lower()
-        if casset.endswith(tuple(ext)):
-            continue
-
-        append = True
-        for pattern in patterns:
-            if pattern in casset.lower():
-                append = False
-                break
-        if append:
-            candidates.append(asset)
-    return candidates
 
 def retpattern():
     hos = platform.system().lower()

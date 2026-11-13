@@ -29,4 +29,4 @@ def rtpkgs():
     for packagedir in programsdir.iterdir():
         if packagedir.is_dir() and (packagedir / "metafile.grm").is_file():
             targetDir.append(packagedir)
-    return targetDir , programsdir
+    return sorted(targetDir) , programsdir

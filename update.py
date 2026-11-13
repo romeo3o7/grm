@@ -31,7 +31,7 @@ def upall(session):
         pkg.version = remoteVersion
         print(f"new release is found : {pkg.version}")
         if confirmation("do you wish to update?" , "[y/n]:"):
-            candidate = selcand(resJson)
+            candidate = selcand(resJson,pkg.assetName)
             if candidate is None:
                 print("Couldn't find candidate")
                 continue
