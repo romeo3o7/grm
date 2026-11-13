@@ -1,4 +1,5 @@
 from pathlib import Path
+from extract import extract
 from remote import remfileinstall
 from models import Package
 from metadata import wmd
@@ -8,11 +9,13 @@ from transaction import (stagenew,stageold,restorepkg)
 
 def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path | None = None):
     # cache path to install the remote file
-    cpath = cachepath(programsdir)
     name = candidate["name"]
     candsize = candidate["size"]
-    tfilepath = cpath / f"{name}"
     url = candidate["browser_download_url"]
+    candtype = candidate["content_type"]
+
+    cpath = cachepath(programsdir)
+    tfilepath = cpath / name
 
     print(f"Installing... ")
     if not remfileinstall(session,url,tfilepath,candsize):
@@ -40,6 +43,10 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
 
         if not wmd(mdpath, pkg):
             return False
+
+        stagedfilepath = stagedir / name
+        if extract(stagedfilepath,stagedir,candtype) is not None:
+            stagedfilepath.unlink()
 
         oldpkgdir = stageold(packagedir)
 
