@@ -2,14 +2,12 @@ from pathlib import Path
 from remote import remfileinstall
 from models import Package
 from metadata import wmd
-from ppath import (cachepath , mkpkgdir)
-from transaction import (stageins,actins)
+from helpers import deldir
+from ppath import (cachepath , sanpkgdir)
+from transaction import (stagenew,stageold,restorepkg)
 
 def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path | None = None):
-    # if packages dir not supplied then infer one
-    if not packagedir:
-        packagedir = mkpkgdir(pkg,programsdir)
-
+    # cache path to install the remote file
     cpath = cachepath(programsdir)
     name = candidate["name"]
     candsize = candidate["size"]
@@ -26,17 +24,42 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
         tfilepath.unlink()
         return False
 
+    # sanity check on package directory
+    packagedir = sanpkgdir(pkg,programsdir,packagedir)
+
     # transaction
-    stagedir = stageins(packagedir,tfilepath,name)
+    stagedir = stagenew(packagedir, tfilepath, name)
+
     if not stagedir:
         return False
 
-    mdpath = stagedir / "metafile.grm"
-    if not wmd(mdpath,pkg):
+    oldpkgdir = None
+
+    try:
+        mdpath = stagedir / "metafile.grm"
+
+        if not wmd(mdpath, pkg):
+            return False
+
+        oldpkgdir = stageold(packagedir)
+
+        # the big move
+        stagedir.rename(packagedir)
+
+    except KeyboardInterrupt:
+        if stagedir.exists():
+            restorepkg(oldpkgdir, packagedir)
+        raise
+
+    except OSError as exc:
+        print(f"Installation failed: {exc}")
+        restorepkg(oldpkgdir, packagedir)
         return False
 
-    if not actins(stagedir,name):
-        return False
+    finally: deldir(stagedir)
+
+    if oldpkgdir is not None:
+        deldir(oldpkgdir)
 
     print(f"DONE, {pkg.name} is Installed")
     return True

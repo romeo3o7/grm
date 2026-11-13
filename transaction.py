@@ -2,8 +2,9 @@ import shutil
 import random
 from models import Package
 from pathlib import Path
+from helpers import deldir
 
-def stageins(packagedir : Path, tfilepath: Path, name):
+def stagenew(packagedir : Path, tfilepath: Path, name):
     stagedir = packagedir.with_suffix(packagedir.suffix + ".stage")
     if stagedir.is_dir():
         shutil.rmtree(stagedir)
@@ -19,23 +20,27 @@ def stageins(packagedir : Path, tfilepath: Path, name):
 
     return stagedir
 
-def actins(stagePath, name):
+def stageold(packagedir):
     oldpkgdir = None
-    packagedir = stagePath.with_suffix("")
     if packagedir.is_dir():
         rand = random.randint(10000, 99999)
         oldpkgdir = packagedir.with_name(f"{packagedir.name}.{rand}")
         packagedir.rename(oldpkgdir)
 
-    try:
-        stagePath.rename(packagedir)
-    except:
-        print("installation failed")
-        if oldpkgdir is not None:
-            print(f"reversing the transaction\n{oldpkgdir} -> {packagedir}")
-            oldpkgdir.rename(packagedir)
-        return None
+    return oldpkgdir
+def restorepkg(oldpkgdir, packagedir):
+    if oldpkgdir is None:
+        return True
 
-    if oldpkgdir is not None:
-        shutil.rmtree(oldpkgdir)
-    return packagedir
+    if packagedir.exists() or packagedir.is_symlink():
+        print(f"Previous Package preserved at: {oldpkgdir}")
+        return False
+
+    try:
+        oldpkgdir.rename(packagedir)
+        return True
+
+    except OSError as exc:
+        print(f"CRITICAL: rollback failed: {exc}")
+        print(f"Previous Package preserved at: {oldpkgdir}")
+        return False

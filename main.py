@@ -13,4 +13,8 @@ def main():
         session.headers.update(headers)
         upall(session)
 
-main()
+try:
+    main()
+except KeyboardInterrupt:
+        print("\nGRM interrupted.")
+        raise SystemExit(130)

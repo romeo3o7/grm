@@ -1,5 +1,6 @@
 Bugs:
 High Priority {
+	- duplicate keys that amount to 5 are accepted
 }
 
 Low Priority {
@@ -10,6 +11,7 @@ Features:
 High Priority {
 	- extraction module
 	- url parsing and installation
+	- dir cleanup function
 	- binary lookup
 	- symlinking
 	- parse arguments
@@ -26,7 +28,10 @@ Low Priority {
 ----------------------------------
 Completed:
 bugs {
+	- mkpkg supplied pkgdir is not protocol-proof[fixed]
 	- install to .cache instead of temp [fixed]
+	- rtpkgs return value inconsistency[fixed]
+	- stage and old package path remains in some occasions [fixed]
 	- actins should not delete the old pkg path and mkdir is not needed[fixed]
 	- duplicate keys in metafile[fixed]
 	- rename back the old pakage diretory to its original name (actins) [fixed]
