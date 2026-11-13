@@ -19,7 +19,6 @@ Low Priority {
 	- last modifed etag remote check
 	- verify checksum
 	- multithreading for version lookup
-	- Progress bar during installation
 	- lines seprating packages during update
 }
 ----------------------------------
@@ -35,4 +34,5 @@ Features {
 	- candidate picker module [done]
 	- write a metadata[done]
 	- install module[done]
+	- Progress bar during installation
 }
