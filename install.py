@@ -7,18 +7,18 @@ from gp import deldir
 from ppath import (cachepath , sanpkgdir)
 from transaction import (stagenew,stageold,restorepkg)
 
-def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path | None = None):
-    # cache path to install the remote file
-    name = candidate["name"]
+def installpkg(session, programsdir, pkg: Package, candidate, pkgversion, packagedir: Path | None = None):
+    candname = candidate["name"]
     candsize = candidate["size"]
-    url = candidate["browser_download_url"]
     candtype = candidate["content_type"]
+    candurl = candidate["browser_download_url"]
 
+    # cache path to install the remote file
     cpath = cachepath(programsdir)
-    tfilepath = cpath / name
+    tfilepath = cpath / candname
 
     print(f"Installing... ")
-    if not remfileinstall(session,url,tfilepath,candsize):
+    if not remfileinstall(session,candurl,tfilepath,candsize):
         return False
 
     filesize = tfilepath.stat().st_size
@@ -31,10 +31,13 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
     packagedir = sanpkgdir(pkg,programsdir,packagedir)
 
     # transaction
-    stagedir = stagenew(packagedir, tfilepath, name)
+    stagedir = stagenew(packagedir, tfilepath, candname)
 
     if not stagedir:
         return False
+
+    pkg.assetName = candname
+    pkg.version = pkgversion
 
     oldpkgdir = None
 
@@ -44,7 +47,7 @@ def installpkg(session, candidate, pkg: Package, programsdir ,packagedir: Path |
         if not wmd(mdpath, pkg):
             return False
 
-        stagedfilepath = stagedir / name
+        stagedfilepath = stagedir / candname
         if extract(stagedfilepath,stagedir,candtype) is not None:
             stagedfilepath.unlink()
 

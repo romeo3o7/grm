@@ -28,6 +28,7 @@ def stageold(packagedir):
         packagedir.rename(oldpkgdir)
 
     return oldpkgdir
+
 def restorepkg(oldpkgdir, packagedir):
     if oldpkgdir is None:
         return True

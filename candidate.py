@@ -7,11 +7,9 @@ def selcand(json,prevcand: str | None = None):
 
     for asset in json["assets"]:
         currentAsset = asset["name"].lower()
-        if prevcand is not None:
-            if currentAsset == prevcand:
-                if confirmation(f"Previous candidate seems to match, use {prevcand}?", "[y/n]"):
-                    candidates.append(asset)
-                    break
+        if prevcand is not None and currentAsset == prevcand:
+            if confirmation(f"Previous candidate seems to match, use {prevcand}?", "[y/n]"):
+                return asset
 
         if currentAsset.endswith(tuple(ext)):
             continue
@@ -27,9 +25,6 @@ def selcand(json,prevcand: str | None = None):
     if not candidates:
         print("no candidates")
         return None
-
-    if len(candidates) == 1:
-        return candidates[0]
 
     for number, asset in enumerate(candidates,start=1):
         print(f"{number}.{asset['name']}")

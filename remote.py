@@ -14,16 +14,14 @@ def remfileinstall(session,url,dst,candsize):
                     print(f"\rtotal downloaded size = {downloaded // 1048576} MB", end="", flush=True)
             print()
     except:
-        print("file remote installation failed mid install")
+        print("\ninstallation failed")
         dst.unlink(missing_ok=True)
         return None
 
     return dst
 
 
-def gtlatest(session,pkg):
-    url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
-    print(f"{pkg.name}: Querying for latest release; current : {pkg.version}")
+def gtlatest(session,url):
     try:
         res = session.get(url,timeout=5)
         res.raise_for_status()

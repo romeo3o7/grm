@@ -14,6 +14,7 @@ High Priority {
 	- binary lookup
 	- symlinking
 	- parse arguments
+	- remove a package
 }
 
 Low Priority {
@@ -26,6 +27,8 @@ Low Priority {
 ----------------------------------
 Completed:
 bugs {
+	- installpkg to update version and asset values
+	- on candidate match, it returns first even though the match might not be first
 	- mkpkg supplied pkgdir is not protocol-proof
 	- install to .cache instead of temp
 	- rtpkgs return value inconsistency

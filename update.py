@@ -16,7 +16,9 @@ def upall(session):
             print("grm file protocol broken, not updating the package")
             continue
 
-        resJson = gtlatest(session, pkg)
+        url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
+        print(f"{pkg.name}: Querying for latest release\ncurrent : {pkg.version}")
+        resJson = gtlatest(session, url)
         if resJson is None:
             print(f"json failed for {pkg.name}")
             continue
@@ -37,6 +39,5 @@ def upall(session):
                 print("Couldn't find candidate")
                 continue
 
-            pkg.assetName = candidate["name"]
-            if not installpkg(session,candidate,pkg,programsdir,pkgdir):
+            if not installpkg(session,programsdir,pkg,candidate,remoteVersion,pkgdir):
                 continue
