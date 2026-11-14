@@ -17,6 +17,7 @@ High Priority {
 }
 
 Low Priority {
+	- update only one
 	- remove any extention that is not an archive or executable
 	- last modifed etag remote check
 	- verify checksum
@@ -39,6 +40,7 @@ bugs {
 }
 
 Features {
+	- bash as frontend
 	- extraction module
 	- candidate picker module
 	- write a metadata
