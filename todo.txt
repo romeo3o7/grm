@@ -1,6 +1,5 @@
 Bugs:
 High Priority {
-	- duplicate keys that amount to 5 are accepted
 }
 
 Low Priority {
@@ -27,6 +26,7 @@ Low Priority {
 ----------------------------------
 Completed:
 bugs {
+	- duplicate keys that amount to 5 are accepted
 	- installpkg to update version and asset values
 	- on candidate match, it returns first even though the match might not be first
 	- mkpkg supplied pkgdir is not protocol-proof

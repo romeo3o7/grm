@@ -13,7 +13,6 @@ def upall(session):
         pkg = Package()
         mdfile = pkgdir / "metafile.grm"
         if not rmd(mdfile,pkg):
-            print("grm file protocol broken, not updating the package")
             continue
 
         url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
