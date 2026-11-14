@@ -1,5 +1,5 @@
 from metadata import rmd
-from ppath import rtpkgs
+from ppath import (rtpkgs,getPpath,sanpkgdir)
 from remote import gtlatest
 from install import installpkg
 from candidate import selcand
@@ -40,3 +40,38 @@ def upall(session):
 
             if not installpkg(session,programsdir,pkg,candidate,remoteVersion,pkgdir):
                 continue
+
+def pkgdownload(session,owner,pkgname):
+    url = f"https://api.github.com/repos/{owner}/{pkgname}/releases/latest"
+    print(f"{pkgname}: installing latest version")
+
+    resJson = gtlatest(session, url)
+    if resJson is None:
+        print(f"json failed for {pkgname}")
+        return False
+
+    remoteVersion = resJson.get("tag_name")
+    if not remoteVersion:
+        print("could not get latest version")
+        return False
+
+    pkg = Package()
+    pkg.name    = pkgname
+    pkg.owner   = owner
+    pkg.version = remoteVersion
+    pkg.link    = pkgname
+
+    programsdir = getPpath()
+    pkgdir = sanpkgdir(pkg,programsdir,"create")
+
+    candidate = selcand(resJson,pkg.assetName)
+    if candidate is None:
+        print("Couldn't find candidate")
+        return False
+
+    if not installpkg(session,programsdir,pkg,candidate,pkg.version,pkgdir):
+        return False
+
+    print(f"{pkgname} is Installed")
+    return True
+

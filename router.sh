@@ -28,10 +28,16 @@ case "${1:-}" in
 			printf "specify a url\n" >&2
 			exit 1
 		fi
-		exec python3 "$script_dir/main.py" install "$2"
+		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
+			echo "Doesn't Matche the a/b format!"
+			exit 1
+		fi
+		owner="${2%/*}"
+		pkg="${2#*/}"
+		exec python3 "$script_dir/controller.py" install "$owner" "$pkg"
 	;;
 	up|update)
-		exec python3 "$script_dir/main.py" update
+		exec python3 "$script_dir/controller.py" update
 	;;
 #	up_one)
 #		[[ -n ${2:-} ]] || { usage >&2; exit 2; }

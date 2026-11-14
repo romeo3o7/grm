@@ -1,7 +1,8 @@
 import os
 import sys
 import requests
-from update import upall
+from service import upall
+from service import pkgdownload
 
 def main():
     cmd = sys.argv[1]
@@ -14,7 +15,7 @@ def main():
     with requests.Session() as session:
         session.headers.update(headers)
         if cmd == "install":
-            raise SystemExit(f"install {sys.argv[2]}")
+            pkgdownload(session,sys.argv[2],sys.argv[3])
         if cmd == "update":
             upall(session)
 
