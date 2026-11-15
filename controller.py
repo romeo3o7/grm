@@ -5,6 +5,9 @@ from service import upall
 from service import pkgdownload
 
 def main():
+    argsize = len(sys.argv)
+    if argsize < 1:
+        sys.exit(1)
     cmd = sys.argv[1]
     ghtoken = os.getenv("GITHUB_TOKEN", "").strip()
     headers = {
@@ -15,7 +18,8 @@ def main():
     with requests.Session() as session:
         session.headers.update(headers)
         if cmd == "install":
-            pkgdownload(session,sys.argv[2],sys.argv[3])
+            if argsize > 3:
+                pkgdownload(session,sys.argv[2],sys.argv[3])
         if cmd == "update":
             upall(session)
 
