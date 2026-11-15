@@ -1,11 +1,11 @@
 from pathlib import Path
-from extract import extract
-from remote import remfileinstall
-from models import Package
-from metadata import wmd
-from gp import deldir
-from ppath import (cachepath , sanpkgdir)
-from transaction import (stagenew,stageold,restorepkg)
+from lib.extract import extract
+from lib.remote import remfileinstall
+from lib.models import Package
+from lib.metadata import wmd
+from lib.gp import deldir
+from lib.ppath import (cachepath , sanpkgdir)
+from lib.transaction import (stagenew,stageold,restorepkg)
 
 def installpkg(session, programsdir, pkg: Package, candidate, pkgversion, packagedir: Path | None = None):
     candname = candidate["name"]

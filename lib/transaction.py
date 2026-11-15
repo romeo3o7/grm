@@ -1,8 +1,8 @@
 import shutil
 import random
-from models import Package
 from pathlib import Path
-from gp import deldir
+from lib.models import Package
+from lib.gp import deldir
 
 def stagenew(packagedir : Path, tfilepath: Path, name):
     stagedir = packagedir.with_suffix(packagedir.suffix + ".stage")

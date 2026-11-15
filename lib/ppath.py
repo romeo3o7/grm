@@ -1,4 +1,4 @@
-from models import Package
+from lib.models import Package
 from pathlib import Path
 
 def sanpkgdir(pkg : Package, programsdir, spackagedir):

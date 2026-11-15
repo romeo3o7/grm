@@ -1,10 +1,10 @@
-from metadata import rmd
-from ppath import (rtpkgs,getPpath,sanpkgdir)
-from remote import gtlatest
-from install import installpkg
-from candidate import selcand
-from gp import (confirmation,buildwall)
-from models import Package
+from lib.metadata import rmd
+from lib.ppath import (rtpkgs,getPpath,sanpkgdir)
+from lib.remote import gtlatest
+from lib.install import installpkg
+from lib.candidate import selcand
+from lib.gp import (confirmation,buildwall)
+from lib.models import Package
 
 def upall(session):
     tgPaths , programsdir = rtpkgs()

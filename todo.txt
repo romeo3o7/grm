@@ -8,21 +8,16 @@ Low Priority {
 ----------------------------------
 Features:
 High Priority {
-	- url parsing and installation
-	- dir cleanup function
-	- binary lookup
-	- symlinking
-	- parse arguments
+	- update only one
 	- remove a package
+	- symlinking
+	- last modifed etag remote check
+	- binary lookup
 }
 
 Low Priority {
-	- update only one
-	- remove any extention that is not an archive or executable
-	- last modifed etag remote check
 	- verify checksum
 	- multithreading for version lookup
-	- usgae report
 }
 ----------------------------------
 Completed:
@@ -40,6 +35,9 @@ bugs {
 }
 
 Features {
+	- url parsing and installation
+	- parse arguments
+	- usgae report
 	- bash as frontend
 	- extraction module
 	- candidate picker module

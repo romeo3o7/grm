@@ -3,13 +3,10 @@
 usage() {
 	cat <<'EOF'
 usage: grm <command> [args]
-
 	list                 list installed packages and their versions
-	install <url>        install the latest release of https://github.com/<owner>/<repo>
-	up_all           check every package (in parallel), then update interactively
-	up_one <name>    update one package ("tool" or "tool.owner")
-	outdated             show which packages have a newer release, changes nothing
-	link <name>          add another symlink for a binary inside a package
+	in|install           install the latest release of <owner>/<repo>
+	up|update            check every package (in parallel), then update interactively
+	up_one <name>        update one package ("tool" or "tool.owner")
 	remove <name>        remove a package and the symlinks that point into it
 
 environment:
@@ -43,10 +40,6 @@ case "${1:-}" in
 #		[[ -n ${2:-} ]] || { usage >&2; exit 2; }
 #		resolve_program "$2" target
 #		update_one "$target"
-#	;;
-#	link)
-#		[[ -n ${2:-} ]] || { usage >&2; exit 2; }
-#		link_package "$2"
 #	;;
 #	remove)
 #		[[ -n ${2:-} ]] || { usage >&2; exit 2; }

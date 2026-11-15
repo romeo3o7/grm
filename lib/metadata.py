@@ -1,4 +1,4 @@
-from models import Package
+from lib.models import Package
 
 def wmd(fpath,pkg : Package):
     # make sure pkg fields are updated
