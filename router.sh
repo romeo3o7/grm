@@ -4,9 +4,9 @@ usage() {
 usage: grm <command> [args]
 	list                 list installed packages and their versions
 	in|install           install the latest release of <owner>/<repo>
-	up|update            check every package (in parallel), then update interactively
-	up_one <name>        update one package ("tool" or "tool.owner")
-	remove <name>        remove a package and the symlinks that point into it
+	up|update            check every package then update interactively
+	                     you could specify a Package to update instead
+	rm <name>            remove a package
 
 environment:
 	GRM_PROGRAMS_DIR     where packages live      (default: ~/Programs)
@@ -33,13 +33,9 @@ case "${1:-}" in
 		exec python3 "$script_dir/controller.py" install "$owner" "$pkg"
 	;;
 	up|update)
-		exec python3 "$script_dir/controller.py" up_all
-	;;
-	up_one)
 		if [[ -z ${2:-} ]]; then
-			printf "specify a Package Name; grm list To see Installed Packages\n"
+			exec python3 "$script_dir/controller.py" up_all
 		fi
-
 		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
 			echo "Make sure it Matche the owner/package_name format!"
 			exit 1

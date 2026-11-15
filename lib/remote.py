@@ -1,3 +1,4 @@
+import os
 import requests
 from pathlib import Path
 
@@ -33,3 +34,16 @@ def gtlatest(session,url):
     except requests.exceptions.RequestException as e:
         print(f"The request failed: {e}")
         return None
+
+def createGHsession():
+    ghtoken = os.getenv("GITHUB_TOKEN", "").strip()
+
+    headers = {
+        "User-Agent": "grm/1.0",
+        "Accept": "application/vnd.github+json",
+        **({"Authorization": f"Bearer {ghtoken}"} if ghtoken else {}),
+    }
+
+    session = requests.Session()
+    session.headers.update(headers)
+    return session

@@ -1,6 +1,4 @@
-import os
 import sys
-import requests
 from service import (listpkgs,upall,upone,pkgdownload)
 
 def main():
@@ -13,35 +11,27 @@ def main():
     if cmd == "list":
         listpkgs()
 
-    ghtoken = os.getenv("GITHUB_TOKEN", "").strip()
-    headers = {
-            "User-Agent": "grm/1.0",
-            "Accept": "application/vnd.github+json",
-            **({"Authorization": f"Bearer {ghtoken}"} if ghtoken else {})
-        }
-    with requests.Session() as session:
-        session.headers.update(headers)
-        if cmd == "install":
-            if argsize > 3:
-                owner = sys.argv[2]
-                pkgname = sys.argv[3]
-                if not pkgdownload(session,owner,pkgname):
-                    sys.exit(1)
+    elif cmd == "install":
+        if argsize > 3:
+            owner = sys.argv[2]
+            pkgname = sys.argv[3]
+            if not pkgdownload(owner,pkgname):
+                sys.exit(1)
 
-        if cmd == "up_all":
-            fails = upall(session)
-            if fails == 0:
-                sys.exit()
+    elif cmd == "up_all":
+        fails = upall()
+        if fails == 0:
+            sys.exit()
 
-            print(f"{fails} Programs Failed To Update")
-            sys.exit(1)
+        print(f"{fails} Programs Failed To Update")
+        sys.exit(1)
 
-        if cmd == "up_one":
-            if argsize > 3:
-                owner = sys.argv[2]
-                pkgname = sys.argv[3]
-                if not upone(session,owner,pkgname):
-                    sys.exit(1)
+    elif cmd == "up_one":
+        if argsize > 3:
+            owner = sys.argv[2]
+            pkgname = sys.argv[3]
+            if not upone(owner,pkgname):
+                sys.exit(1)
 
 if __name__ == "__main__":
     try:
