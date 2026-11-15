@@ -8,7 +8,6 @@ Low Priority {
 ----------------------------------
 Features:
 High Priority {
-	- update only one
 	- remove a package
 	- symlinking
 	- last modifed etag remote check
@@ -35,6 +34,7 @@ bugs {
 }
 
 Features {
+	- update only one
 	- url parsing and installation
 	- parse arguments
 	- usgae report

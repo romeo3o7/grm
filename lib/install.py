@@ -1,13 +1,44 @@
 from pathlib import Path
 from lib.extract import extract
-from lib.remote import remfileinstall
+from lib.remote import gtlatest
+from lib.candidate import selcand
+from lib.gp import (confirmation,buildwall)
 from lib.models import Package
+from lib.remote import remfileinstall
 from lib.metadata import wmd
 from lib.gp import deldir
 from lib.ppath import (cachepath , sanpkgdir)
 from lib.transaction import (stagenew,stageold,restorepkg)
 
-def installpkg(session, programsdir, pkg: Package, candidate, pkgversion, packagedir: Path | None = None):
+def installpkg(session, pkg: Packageh,programsdir, packagedir: Path | None = None):
+    buildwall()
+    url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
+    print(f"{pkg.name}: Checking for latest version")
+
+    resJson = gtlatest(session, url)
+    if resJson is None:
+        print(f"json failed for {pkg.name}")
+        return False
+
+    remoteVersion = resJson.get("tag_name")
+    if not remoteVersion:
+        print("could not get latest version")
+        return False
+
+    if pkg.version != "" and remoteVersion == pkg.version:
+        print(f"{pkg.name} is up to date")
+        return True
+
+    if not confirmation(f"Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n]:"):
+        return False
+
+    packagedir = sanpkgdir(pkg,programsdir,packagedir)
+
+    candidate = selcand(resJson,pkg.assetName)
+    if candidate is None:
+        print("Couldn't find candidate")
+        return False
+
     candname = candidate["name"]
     candsize = candidate["size"]
     candtype = candidate["content_type"]
@@ -27,9 +58,6 @@ def installpkg(session, programsdir, pkg: Package, candidate, pkgversion, packag
         tfilepath.unlink()
         return False
 
-    # sanity check on package directory
-    packagedir = sanpkgdir(pkg,programsdir,packagedir)
-
     # transaction
     stagedir = stagenew(packagedir, tfilepath, candname)
 
@@ -37,7 +65,7 @@ def installpkg(session, programsdir, pkg: Package, candidate, pkgversion, packag
         return False
 
     pkg.assetName = candname
-    pkg.version = pkgversion
+    pkg.version = remoteVersion
 
     oldpkgdir = None
 

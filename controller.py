@@ -1,10 +1,12 @@
 import os
 import sys
 import requests
-from service import upall
-from service import pkgdownload
+from service import (upall,upone,pkgdownload)
 
 def main():
+    argsize = len(sys.argv)
+    if argsize < 1:
+        sys.exit(1)
     cmd = sys.argv[1]
     ghtoken = os.getenv("GITHUB_TOKEN", "").strip()
     headers = {
@@ -15,9 +17,26 @@ def main():
     with requests.Session() as session:
         session.headers.update(headers)
         if cmd == "install":
-            pkgdownload(session,sys.argv[2],sys.argv[3])
-        if cmd == "update":
-            upall(session)
+            if argsize > 3:
+                owner = sys.argv[2]
+                pkgname = sys.argv[3]
+                if not pkgdownload(session,owner,pkgname):
+                    sys.exit(1)
+
+        if cmd == "up_all":
+            fails = upall(session)
+            if fails == 0:
+                sys.exit()
+
+            print(f"{fails} Programs Failed To Update")
+            sys.exit(1)
+
+        if cmd == "up_one":
+            if argsize > 3:
+                owner = sys.argv[2]
+                pkgname = sys.argv[3]
+                if not upone(session,owner,pkgname):
+                    sys.exit(1)
 
 if __name__ == "__main__":
     try:
