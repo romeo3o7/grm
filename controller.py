@@ -19,7 +19,9 @@ def main():
         session.headers.update(headers)
         if cmd == "install":
             if argsize > 3:
-                pkgdownload(session,sys.argv[2],sys.argv[3])
+                owner = sys.argv[2]
+                pkgname = sys.argv[3]
+                pkgdownload(session,owner,pkgname)
         if cmd == "update":
             upall(session)
 

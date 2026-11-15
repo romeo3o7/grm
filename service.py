@@ -1,3 +1,4 @@
+from pathlib import Path
 from lib.metadata import rmd
 from lib.ppath import (rtpkgs,getPpath,sanpkgdir)
 from lib.remote import gtlatest
@@ -9,69 +10,22 @@ from lib.models import Package
 def upall(session):
     tgPaths , programsdir = rtpkgs()
     for pkgdir in tgPaths:
-        buildwall()
         pkg = Package()
         mdfile = pkgdir / "metafile.grm"
         if not rmd(mdfile,pkg):
             continue
-
-        url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
-        print(f"{pkg.name}: Querying for latest release\ncurrent : {pkg.version}")
-        resJson = gtlatest(session, url)
-        if resJson is None:
-            print(f"json failed for {pkg.name}")
+        if not installpkg(session,pkg,programsdir,pkgdir):
             continue
-
-        remoteVersion = resJson.get("tag_name")
-        if not remoteVersion:
-            print("could not get latest version")
-            continue
-        if remoteVersion == pkg.version:
-            print(f"{pkg.name} is up to date")
-            continue
-
-        pkg.version = remoteVersion
-        print(f"new release is found : {pkg.version}")
-        if confirmation("do you wish to update?" , "[y/n]:"):
-            candidate = selcand(resJson,pkg.assetName)
-            if candidate is None:
-                print("Couldn't find candidate")
-                continue
-
-            if not installpkg(session,programsdir,pkg,candidate,remoteVersion,pkgdir):
-                continue
 
 def pkgdownload(session,owner,pkgname):
-    url = f"https://api.github.com/repos/{owner}/{pkgname}/releases/latest"
-    print(f"{pkgname}: installing latest version")
-
-    resJson = gtlatest(session, url)
-    if resJson is None:
-        print(f"json failed for {pkgname}")
-        return False
-
-    remoteVersion = resJson.get("tag_name")
-    if not remoteVersion:
-        print("could not get latest version")
+    programsdir = getPpath()
+    pkgdir = programsdir / f"{pkgname}.{owner}"
+    if pkgdir.is_dir():
+        print("Package already Exists")
         return False
 
     pkg = Package()
-    pkg.name    = pkgname
-    pkg.owner   = owner
-    pkg.version = remoteVersion
-    pkg.link    = pkgname
-
-    programsdir = getPpath()
-    pkgdir = sanpkgdir(pkg,programsdir,"create")
-
-    candidate = selcand(resJson,pkg.assetName)
-    if candidate is None:
-        print("Couldn't find candidate")
+    pkg.name = pkgname
+    pkg.owner = owner
+    if not installpkg(session,pkg,programsdir,pkgdir):
         return False
-
-    if not installpkg(session,programsdir,pkg,candidate,pkg.version,pkgdir):
-        return False
-
-    print(f"{pkgname} is Installed")
-    return True
-
