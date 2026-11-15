@@ -1,26 +1,49 @@
 Bugs:
 High Priority {
+	- remfileinstall bare `except:` swallows Ctrl-C; the update loop carries on to the next package (verified)
+	- zip extraction drops the executable bit, files land 0644 (verified)
+	- selcand previous-candidate match never fires: case mismatch and the version is in the asset name (verified both)
+	- rtpkgs lists leftover `.stage` and `.NNNNN` dirs as packages (verified)
+	- extract errors (EOFError, tarfile.TarError, BadZipFile) are not OSError: traceback, rest of upall is aborted (verified)
+	- candidate name not being validated for path manipulation
 }
 
 Low Priority {
-	- candidate names accidently matching package names (retpattern)
+	- candidate names accidentally matching package names (retpattern)
+	- controller: `argsize < 1` is never true
+	- router.sh up_one: no exit after "specify a Package Name"
+	- arg order is pkg/owner while install is owner/pkg
+	- token and Accept header are sent to non-API hosts (the download uses the same session)
+	- 403/429 rate limit shows as a generic "request failed"
+	- sanpkgdir ignores its supplied-dir argument (always returns the computed one)
+	- Owner/Repo case differences create duplicate package dirs
+	- .cache file left behind if stagenew fails; cache never pruned
 }
 ----------------------------------
 Features:
 High Priority {
-	- remove a package
+	- list
+	- binary lookup -> symlinking -> remove (in that order)
+	- split installpkg into check_latest() and install_release(); return a result enum
+	- per-package try/except in upall
+	- verify checksum (GitHub exposes SHA-256 digests; promoted from Low)
 	- symlinking
-	- last modifed etag remote check
+	- last modified / etag remote check
 	- binary lookup
 }
 
 Low Priority {
-	- verify checksum
+	- drop `requests` for urllib
+	- non-interactive mode
+	- lockfile so two grm runs can't race
+	- pin/hold a package; install a specific version (owner/repo@tag)
+	- GRM_PROGRAMS_DIR / GRM_BIN_DIR env vars
 	- multithreading for version lookup
 }
 ----------------------------------
 Completed:
 bugs {
+	- non archive file being deleted
 	- duplicate keys that amount to 5 are accepted
 	- installpkg to update version and asset values
 	- on candidate match, it returns first even though the match might not be first

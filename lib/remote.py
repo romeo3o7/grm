@@ -16,7 +16,7 @@ def remfileinstall(session,url,dst,candsize):
     except:
         print("\ninstallation failed")
         dst.unlink(missing_ok=True)
-        return None
+        raise SystemExit(1)
 
     return dst
 

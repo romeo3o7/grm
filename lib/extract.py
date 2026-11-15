@@ -15,5 +15,7 @@ def extract(filepath, dst , candtype):
             archive.extractall(dst)
         return "zip"
 
-    print(f"Unkown type: {candtype}")
+    if confirmation(f"Unkown Type: {candtype}\n Keep?", "[y/n]"):
+        return "keep"
+
     return None

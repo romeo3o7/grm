@@ -1,13 +1,18 @@
 import os
 import sys
 import requests
-from service import (upall,upone,pkgdownload)
+from service import (listpkgs,upall,upone,pkgdownload)
 
 def main():
     argsize = len(sys.argv)
-    if argsize < 1:
+    if argsize < 2:
         sys.exit(1)
+
     cmd = sys.argv[1]
+
+    if cmd == "list":
+        listpkgs()
+
     ghtoken = os.getenv("GITHUB_TOKEN", "").strip()
     headers = {
             "User-Agent": "grm/1.0",

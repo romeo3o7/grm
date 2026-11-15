@@ -10,7 +10,7 @@ from lib.gp import deldir
 from lib.ppath import (cachepath , sanpkgdir)
 from lib.transaction import (stagenew,stageold,restorepkg)
 
-def installpkg(session, pkg: Packageh,programsdir, packagedir: Path | None = None):
+def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None):
     buildwall()
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
     print(f"{pkg.name}: Checking for latest version")
@@ -30,7 +30,7 @@ def installpkg(session, pkg: Packageh,programsdir, packagedir: Path | None = Non
         return True
 
     if not confirmation(f"Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n]:"):
-        return False
+        return True
 
     packagedir = sanpkgdir(pkg,programsdir,packagedir)
 

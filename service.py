@@ -53,3 +53,8 @@ def upone(session,owner,pkgname):
         return False
 
     return True
+
+def listpkgs():
+    tgPaths , programsdir = rtpkgs()
+    for pkgdir in tgPaths:
+        print(pkgdir.name)

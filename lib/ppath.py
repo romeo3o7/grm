@@ -27,6 +27,6 @@ def rtpkgs():
         return [],programsdir
     targetDir = []
     for packagedir in programsdir.iterdir():
-        if packagedir.is_dir() and (packagedir / "metafile.grm").is_file():
+        if packagedir.is_dir() and packagedir.suffix.lower() != ".stage" and (packagedir / "metafile.grm").is_file():
             targetDir.append(packagedir)
     return sorted(targetDir) , programsdir

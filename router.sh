@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 usage() {
 	cat <<'EOF'
 usage: grm <command> [args]
@@ -26,7 +25,7 @@ case "${1:-}" in
 			exit 1
 		fi
 		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
-			echo "Make Sure it Matche the owner/packageName format!"
+			echo "Make Sure it Matche the owner/package_name format!"
 			exit 1
 		fi
 		owner="${2%/*}"
@@ -42,20 +41,20 @@ case "${1:-}" in
 		fi
 
 		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
-			echo "Make sure it Matche the packageName/owner format!"
+			echo "Make sure it Matche the owner/package_name format!"
 			exit 1
 		fi
-		pkg="${2%/*}"
-		owner="${2#*/}"
+		owner="${2%/*}"
+		pkg="${2#*/}"
 		exec python3 "$script_dir/controller.py" up_one "$owner" "$pkg"
 	;;
 #	remove)
 #		[[ -n ${2:-} ]] || { usage >&2; exit 2; }
 #		remove_package "$2"
 #	;;
-#	list)
-#		list_packages
-#	;;
+	list)
+		exec python3 "$script_dir/controller.py" list
+	;;
 	""|help|-h|--help)
 		usage
 	;;

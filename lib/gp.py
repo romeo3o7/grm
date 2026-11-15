@@ -1,4 +1,5 @@
 import shutil
+from pathlib import Path
 
 def deldir(dirpath: Path | None) -> bool:
     if dirpath is None:
