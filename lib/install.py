@@ -27,7 +27,7 @@ def installpkg(session, pkg: Packageh,programsdir, packagedir: Path | None = Non
 
     if pkg.version != "" and remoteVersion == pkg.version:
         print(f"{pkg.name} is up to date")
-        return False
+        return True
 
     if not confirmation(f"Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n]:"):
         return False

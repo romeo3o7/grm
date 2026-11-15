@@ -1,8 +1,7 @@
 import os
 import sys
 import requests
-from service import upall
-from service import pkgdownload
+from service import (upall,upone,pkgdownload)
 
 def main():
     argsize = len(sys.argv)
@@ -21,9 +20,23 @@ def main():
             if argsize > 3:
                 owner = sys.argv[2]
                 pkgname = sys.argv[3]
-                pkgdownload(session,owner,pkgname)
-        if cmd == "update":
-            upall(session)
+                if not pkgdownload(session,owner,pkgname):
+                    sys.exit(1)
+
+        if cmd == "up_all":
+            fails = upall(session)
+            if fails == 0:
+                sys.exit()
+
+            print(f"{fails} Programs Failed To Update")
+            sys.exit(1)
+
+        if cmd == "up_one":
+            if argsize > 3:
+                owner = sys.argv[2]
+                pkgname = sys.argv[3]
+                if not upone(session,owner,pkgname):
+                    sys.exit(1)
 
 if __name__ == "__main__":
     try:

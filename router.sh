@@ -26,7 +26,7 @@ case "${1:-}" in
 			exit 1
 		fi
 		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
-			echo "Doesn't Matche the a/b format!"
+			echo "Make Sure it Matche the owner/packageName format!"
 			exit 1
 		fi
 		owner="${2%/*}"
@@ -34,13 +34,21 @@ case "${1:-}" in
 		exec python3 "$script_dir/controller.py" install "$owner" "$pkg"
 	;;
 	up|update)
-		exec python3 "$script_dir/controller.py" update
+		exec python3 "$script_dir/controller.py" up_all
 	;;
-#	up_one)
-#		[[ -n ${2:-} ]] || { usage >&2; exit 2; }
-#		resolve_program "$2" target
-#		update_one "$target"
-#	;;
+	up_one)
+		if [[ -z ${2:-} ]]; then
+			printf "specify a Package Name; grm list To see Installed Packages\n"
+		fi
+
+		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
+			echo "Make sure it Matche the packageName/owner format!"
+			exit 1
+		fi
+		pkg="${2%/*}"
+		owner="${2#*/}"
+		exec python3 "$script_dir/controller.py" up_one "$owner" "$pkg"
+	;;
 #	remove)
 #		[[ -n ${2:-} ]] || { usage >&2; exit 2; }
 #		remove_package "$2"
