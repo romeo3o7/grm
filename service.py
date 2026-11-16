@@ -18,6 +18,7 @@ def pkgup(session,programsdir,pkgdir):
     return True
 
 def upall():
+    print("Updating and loading repositories:")
     with createGHsession() as session:
         fails = 0
         tgPaths , programsdir = rtpkgs()

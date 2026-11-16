@@ -30,7 +30,13 @@ case "${1:-}" in
 		fi
 		owner="${2%/*}"
 		pkg="${2#*/}"
-		exec python3 "$script_dir/controller.py" install "$owner" "$pkg"
+		exists=$(curl -s -o /dev/null -w "%{http_code}" -I "https://github.com/$owner/$pkg")
+		if [[ $exists == 200 ]]; then
+			exec python3 "$script_dir/controller.py" install "$owner" "$pkg"
+		else
+			printf "Repo Doesn't Exist\n"
+			exit 1
+		fi
 	;;
 	up|update)
 		if [[ -z ${2:-} ]]; then

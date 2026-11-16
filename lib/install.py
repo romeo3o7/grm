@@ -10,9 +10,7 @@ from lib.ppath import (cachepath , sanpkgdir)
 from lib.transaction import (deldir,stagenew,stageold,restorepkg)
 
 def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None):
-    buildwall()
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
-    print(f"{pkg.name}: Checking for latest version")
 
     resJson = gtlatest(session, url)
     if resJson is None:
@@ -24,10 +22,9 @@ def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None
         return False
 
     if pkg.version != "" and remoteVersion == pkg.version:
-        print(f"{pkg.name} is up to date")
         return True
 
-    if not confirmation(f"Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n]:"):
+    if not confirmation(f"{pkg.name}: Latest Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n]:"):
         return True
 
     packagedir = sanpkgdir(pkg,programsdir,packagedir)
@@ -97,4 +94,5 @@ def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None
         deldir(oldpkgdir)
 
     print(f"DONE, {pkg.name} is Installed")
+    buildwall()
     return True

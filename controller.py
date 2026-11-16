@@ -20,10 +20,10 @@ def main():
 
     elif cmd == "up_all":
         fails = upall()
+        print(f"{fails} Programs updating process falied")
         if fails == 0:
             sys.exit()
 
-        print(f"{fails} Programs Failed To Update")
         sys.exit(1)
 
     elif cmd == "up_one":
