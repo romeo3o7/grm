@@ -8,7 +8,7 @@ def sanpkgdir(pkg : Package, programsdir, spackagedir):
         if spackagedir == apackagedir:
             return spackagedir
 
-    return apackagedir
+    return None
 
 def cachepath(programsdir):
     cachepath = programsdir / ".cache"

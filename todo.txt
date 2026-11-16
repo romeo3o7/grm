@@ -1,29 +1,19 @@
 Bugs:
 High Priority {
-	- remfileinstall bare `except:` swallows Ctrl-C; the update loop carries on to the next package (verified)
-	- zip extraction drops the executable bit, files land 0644 (verified)
-	- selcand previous-candidate match never fires: case mismatch and the version is in the asset name (verified both)
-	- rtpkgs lists leftover `.stage` and `.NNNNN` dirs as packages (verified)
-	- extract errors (EOFError, tarfile.TarError, BadZipFile) are not OSError: traceback, rest of upall is aborted (verified)
 	- candidate name not being validated for path manipulation
 }
 
 Low Priority {
 	- candidate names accidentally matching package names (retpattern)
-	- controller: `argsize < 1` is never true
-	- router.sh up_one: no exit after "specify a Package Name"
-	- arg order is pkg/owner while install is owner/pkg
-	- token and Accept header are sent to non-API hosts (the download uses the same session)
 	- 403/429 rate limit shows as a generic "request failed"
-	- sanpkgdir ignores its supplied-dir argument (always returns the computed one)
-	- Owner/Repo case differences create duplicate package dirs
-	- .cache file left behind if stagenew fails; cache never pruned
+	- zip extraction drops the executable bit, files land 0644 (verified)
 	- lib module possible name collison
 }
 ----------------------------------
 Features:
 High Priority {
-	- list
+	- filetype recognization
+	- Return the numeric value to Packages that are up to date
 	- binary lookup -> symlinking -> remove (in that order)
 	- split installpkg into check_latest() and install_release(); return a result enum
 	- per-package try/except in upall
@@ -55,9 +45,21 @@ bugs {
 	- actins should not delete the old pkg path and mkdir is not needed
 	- duplicate keys in metafile
 	- rename back the old pakage diretory to its original name (actins)
+	- .cache file left behind if stagenew fails; cache never pruned
+	- arg order is pkg/owner while install is owner/pkg
+	- controller: `argsize < 1` is never true
+	- router.sh up_one: no exit after "specify a Package Name"
+	- selcand previous-candidate match never fires: case mismatch and the version is in the asset name (verified both)
+	- rtpkgs lists leftover `.stage` and `.NNNNN` dirs as packages (verified)
+	- token and Accept header are sent to non-API hosts (the download uses the same session)
+	- sanpkgdir ignores its supplied-dir argument (always returns the computed one)
+	- remfileinstall bare `except:` swallows Ctrl-C; the update loop carries on to the next package (verified)
+	- extract errors (EOFError, tarfile.TarError, BadZipFile) are not OSError: traceback, rest of upall is aborted (verified)
+	- querying github api on repos that don't exist
 }
 
 Features {
+	- list
 	- update only one
 	- url parsing and installation
 	- parse arguments

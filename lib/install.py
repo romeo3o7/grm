@@ -9,7 +9,7 @@ from lib.metadata import wmd
 from lib.ppath import (cachepath , sanpkgdir)
 from lib.transaction import (deldir,stagenew,stageold,restorepkg)
 
-def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None):
+def installpkg(session, pkg: Package,programsdir, packagedir):
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
 
     resJson = gtlatest(session, url)
@@ -28,6 +28,10 @@ def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None
         return True
 
     packagedir = sanpkgdir(pkg,programsdir,packagedir)
+
+    if packagedir is None:
+        print("Supplied package path not found")
+        return False
 
     candidate = selcand(resJson,pkg.assetName)
     if candidate is None:
@@ -57,6 +61,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None
     stagedir = stagenew(packagedir, tfilepath, candname)
 
     if not stagedir:
+        tfilepath.unlink()
         return False
 
     pkg.assetName = candname
