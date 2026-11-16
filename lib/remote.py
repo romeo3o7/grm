@@ -14,10 +14,10 @@ def remfileinstall(session,url,dst,candsize):
                     downloaded += len(chunk)
                     print(f"\rtotal downloaded size = {downloaded // 1048576} MB", end="", flush=True)
             print()
-    except:
-        print("\ninstallation failed")
+    except Exception as err:
+        print(f"\ninstallation failed: {err}")
         dst.unlink(missing_ok=True)
-        raise SystemExit(1)
+        raise
 
     return dst
 

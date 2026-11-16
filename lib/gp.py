@@ -1,20 +1,6 @@
 import shutil
 from pathlib import Path
 
-def deldir(dirpath: Path | None) -> bool:
-    if dirpath is None:
-        return True
-
-    try:
-        if dirpath.is_dir():
-            shutil.rmtree(dirpath)
-
-        return True
-
-    except OSError as exc:
-        print(f"Failed to delete {dirpath}: {exc}")
-        return False
-
 def confirmation(msg,prompt):
     while True:
         reply = input(f"{msg} - {prompt} ")
@@ -30,6 +16,6 @@ def buildwall():
     wall = width // 2
 
     for i in range(wall):
-        print("=", end="")
+        print("-", end="")
 
-    print(">")
+    print("|")

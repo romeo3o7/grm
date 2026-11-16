@@ -47,7 +47,7 @@ def listpkgs():
         print(pkgdir.name)
 
 def pkgdownload(owner,pkgname):
-    with createGHsesssion() as session:
+    with createGHsession() as session:
         programsdir = getPpath()
         pkgdir = programsdir / f"{pkgname}.{owner}"
         if pkgdir.is_dir():

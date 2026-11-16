@@ -6,9 +6,8 @@ from lib.gp import (confirmation,buildwall)
 from lib.models import Package
 from lib.remote import remfileinstall
 from lib.metadata import wmd
-from lib.gp import deldir
 from lib.ppath import (cachepath , sanpkgdir)
-from lib.transaction import (stagenew,stageold,restorepkg)
+from lib.transaction import (deldir,stagenew,stageold,restorepkg)
 
 def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None):
     buildwall()
@@ -17,7 +16,6 @@ def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None
 
     resJson = gtlatest(session, url)
     if resJson is None:
-        print(f"json failed for {pkg.name}")
         return False
 
     remoteVersion = resJson.get("tag_name")
@@ -72,8 +70,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir: Path | None = None
     try:
         mdpath = stagedir / "metafile.grm"
 
-        if not wmd(mdpath, pkg):
-            return False
+        wmd(mdpath, pkg)
 
         stagedfilepath = stagedir / candname
         if extract(stagedfilepath,stagedir,candtype) is not None:

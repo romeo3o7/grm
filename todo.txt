@@ -18,6 +18,7 @@ Low Priority {
 	- sanpkgdir ignores its supplied-dir argument (always returns the computed one)
 	- Owner/Repo case differences create duplicate package dirs
 	- .cache file left behind if stagenew fails; cache never pruned
+	- lib module possible name collison
 }
 ----------------------------------
 Features:

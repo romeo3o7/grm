@@ -2,7 +2,6 @@ import shutil
 import random
 from pathlib import Path
 from lib.models import Package
-from lib.gp import deldir
 
 def stagenew(packagedir : Path, tfilepath: Path, name):
     stagedir = packagedir.with_suffix(packagedir.suffix + ".stage")
@@ -13,7 +12,7 @@ def stagenew(packagedir : Path, tfilepath: Path, name):
     sfilepath = stagedir / name
     try:
         tfilepath.replace(sfilepath)
-    except:
+    except OSError:
         print("moving temp file to stage dir failed")
         stagedir.rmdir()
         return None
@@ -28,6 +27,20 @@ def stageold(packagedir):
         packagedir.rename(oldpkgdir)
 
     return oldpkgdir
+
+def deldir(dirpath: Path | None) -> bool:
+    if dirpath is None:
+        return True
+
+    try:
+        if dirpath.is_dir():
+            shutil.rmtree(dirpath)
+
+        return True
+
+    except OSError as exc:
+        print(f"Failed to delete {dirpath}: {exc}")
+        return False
 
 def restorepkg(oldpkgdir, packagedir):
     if oldpkgdir is None:
