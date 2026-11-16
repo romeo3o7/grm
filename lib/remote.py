@@ -1,8 +1,8 @@
 import os
-import requests
 from pathlib import Path
 
 def remfileinstall(session,url,dst,candsize):
+    import requests
     try:
         with session.get(url, stream=True,timeout=10) as req:
             req.raise_for_status()
@@ -14,7 +14,7 @@ def remfileinstall(session,url,dst,candsize):
                     downloaded += len(chunk)
                     print(f"\rtotal downloaded size = {downloaded // 1048576} MB", end="", flush=True)
             print()
-    except Exception as err:
+    except BaseException as err:
         print(f"\ninstallation failed: {err}")
         dst.unlink(missing_ok=True)
         raise
@@ -23,6 +23,7 @@ def remfileinstall(session,url,dst,candsize):
 
 
 def gtlatest(session,url):
+    import requests
     try:
         res = session.get(url,timeout=5)
         res.raise_for_status()
@@ -36,6 +37,7 @@ def gtlatest(session,url):
         return None
 
 def createGHsession():
+    import requests
     ghtoken = os.getenv("GITHUB_TOKEN", "").strip()
 
     headers = {

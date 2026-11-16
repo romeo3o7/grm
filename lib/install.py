@@ -2,7 +2,7 @@ from pathlib import Path
 from lib.extract import extract
 from lib.remote import gtlatest
 from lib.candidate import selcand
-from lib.gp import (confirmation,buildwall)
+from lib.gp import confirmation
 from lib.models import Package
 from lib.remote import remfileinstall
 from lib.metadata import wmd
@@ -30,7 +30,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
     packagedir = sanpkgdir(pkg,programsdir,packagedir)
 
     if packagedir is None:
-        print("Supplied package path not found")
+        print("Package path rejected: Doesn't match metafile fields")
         return False
 
     candidate = selcand(resJson,pkg.assetName)
@@ -75,7 +75,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
         wmd(mdpath, pkg)
 
         stagedfilepath = stagedir / candname
-        if extract(stagedfilepath,stagedir,candtype) is not None:
+        if extract(stagedfilepath,stagedir,candtype):
             stagedfilepath.unlink()
 
         oldpkgdir = stageold(packagedir)
@@ -99,5 +99,4 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
         deldir(oldpkgdir)
 
     print(f"DONE, {pkg.name} is Installed")
-    buildwall()
     return True

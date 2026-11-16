@@ -10,9 +10,13 @@ from lib.models import Package
 def pkgup(session,programsdir,pkgdir):
     pkg = Package()
     mdfile = pkgdir / "metafile.grm"
-    if not rmd(mdfile,pkg):
-        return False
-    if not installpkg(session,pkg,programsdir,pkgdir):
+    try:
+        if not rmd(mdfile,pkg):
+            return False
+        if not installpkg(session,pkg,programsdir,pkgdir):
+            return False
+    except Exception as err:
+        print(err)
         return False
 
     return True
@@ -62,5 +66,3 @@ def pkgdownload(owner,pkgname):
             return False
 
         return True
-
-        print(pkgdir.name)

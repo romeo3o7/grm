@@ -1,5 +1,4 @@
 import shutil
-import random
 from pathlib import Path
 from lib.models import Package
 
@@ -12,8 +11,8 @@ def stagenew(packagedir : Path, tfilepath: Path, name):
     sfilepath = stagedir / name
     try:
         tfilepath.replace(sfilepath)
-    except OSError:
-        print("moving temp file to stage dir failed")
+    except OSError as err:
+        print(f"moving temp file to stage dir failed: {err}")
         stagedir.rmdir()
         return None
 
@@ -22,8 +21,7 @@ def stagenew(packagedir : Path, tfilepath: Path, name):
 def stageold(packagedir):
     oldpkgdir = None
     if packagedir.is_dir():
-        rand = random.randint(10000, 99999)
-        oldpkgdir = packagedir.with_name(f"{packagedir.name}.{rand}")
+        oldpkgdir = packagedir.with_name(f"{packagedir.name}.bak")
         packagedir.rename(oldpkgdir)
 
     return oldpkgdir
@@ -35,7 +33,6 @@ def deldir(dirpath: Path | None) -> bool:
     try:
         if dirpath.is_dir():
             shutil.rmtree(dirpath)
-
         return True
 
     except OSError as exc:
@@ -55,6 +52,6 @@ def restorepkg(oldpkgdir, packagedir):
         return True
 
     except OSError as exc:
-        print(f"CRITICAL: rollback failed: {exc}")
+        print(f"rollback failed: {exc}")
         print(f"Previous Package preserved at: {oldpkgdir}")
         return False
