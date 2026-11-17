@@ -7,7 +7,6 @@ def sanpkgdir(pkg : Package, programsdir, spackagedir):
         # supplied vs Actual check
         if spackagedir == apackagedir:
             return spackagedir
-
     return None
 
 def cachepath(programsdir):
@@ -27,7 +26,7 @@ def rtpkgs():
         return [],programsdir
     targetDir = []
     for packagedir in programsdir.iterdir():
-        leftover = packagedir.suffix.lower() != ".stage" and packagedir.suffix.lower() != ".bak"
-        if packagedir.is_dir() and leftover and (packagedir / "metafile.grm").is_file():
+        leftover = packagedir.suffix.lower() == ".stage" or packagedir.suffix.lower() == ".bak"
+        if packagedir.is_dir() and not leftover and (packagedir / "metafile.grm").is_file():
             targetDir.append(packagedir)
     return sorted(targetDir) , programsdir

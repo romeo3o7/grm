@@ -1,12 +1,11 @@
 import os
 from pathlib import Path
 
-def remfileinstall(session,url,dst,candsize):
+def remfileinstall(session,url,dst):
     import requests
     try:
         with session.get(url, stream=True,timeout=10) as req:
             req.raise_for_status()
-            print(f"total size = {candsize// 1048576} MB", flush=True)
             downloaded = 0
             with open(dst,"wb") as f:
                 for chunk in req.iter_content(chunk_size=512000):
@@ -18,7 +17,6 @@ def remfileinstall(session,url,dst,candsize):
         print(f"\ninstallation failed: {err}")
         dst.unlink(missing_ok=True)
         raise
-
     return dst
 
 
@@ -45,7 +43,6 @@ def createGHsession():
         "Accept": "application/vnd.github+json",
         **({"Authorization": f"Bearer {ghtoken}"} if ghtoken else {}),
     }
-
     session = requests.Session()
     session.headers.update(headers)
     return session

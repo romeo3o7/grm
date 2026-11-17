@@ -7,8 +7,11 @@ def confirmation(msg,prompt):
         reply = reply.strip().lower()
         if reply == 'y':
             return True
-        if reply == 'n' or reply == 'q':
+        if reply == 'n':
             return False
+        if reply == 'q':
+            raise SystemExit()
+
 def buildwall():
     twindowsize = shutil.get_terminal_size()
     width = twindowsize.columns

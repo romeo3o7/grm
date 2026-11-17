@@ -1,4 +1,3 @@
-import platform
 from lib.gp import confirmation
 
 def selcand(json,prevcand: str | None = None):
@@ -8,7 +7,7 @@ def selcand(json,prevcand: str | None = None):
     for asset in json["assets"]:
         currentAsset = asset["name"].lower()
         if prevcand is not None and currentAsset == prevcand.lower():
-            if confirmation(f"Previous candidate seems to match\nUse {prevcand}?", "[y/n]"):
+            if confirmation(f"Previous candidate seems to match -> {prevcand}\nUse it?", "[y/n]"):
                 return asset
 
         if currentAsset.endswith(tuple(ext)):
@@ -16,6 +15,7 @@ def selcand(json,prevcand: str | None = None):
 
         append = True
         for pattern in patterns:
+            # if pattern is found, Asset is useless
             if pattern in currentAsset.lower():
                 append = False
                 break
@@ -39,6 +39,7 @@ def selcand(json,prevcand: str | None = None):
     return thechosenone
 
 def retpattern():
+    import platform
     hos = platform.system().lower()
     harch = platform.machine().lower()
     ext = []

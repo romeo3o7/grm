@@ -1,5 +1,5 @@
 import sys
-from service import (listpkgs,upall,upone,pkgdownload)
+from service import (listpkgs,upall,upone,pkgdownload,pkgremove)
 
 def main():
     argsize = len(sys.argv)
@@ -17,6 +17,14 @@ def main():
             pkgname = sys.argv[3]
             if not pkgdownload(owner,pkgname):
                 sys.exit(1)
+
+    elif cmd == "remove":
+        if argsize > 3:
+            owner = sys.argv[2]
+            pkgname = sys.argv[3]
+            if not pkgremove(owner,pkgname):
+                sys.exit(1)
+            print("Deleted.")
 
     elif cmd == "up_all":
         fails = upall()

@@ -50,10 +50,19 @@ case "${1:-}" in
 		pkg="${2#*/}"
 		exec python3 "$script_dir/controller.py" up_one "$owner" "$pkg"
 	;;
-#	remove)
-#		[[ -n ${2:-} ]] || { usage >&2; exit 2; }
-#		remove_package "$2"
-#	;;
+	rm)
+		if [[ -z ${2:-} ]]; then
+			printf "Specify a package\n" >&2
+			exit 1
+		fi
+		if ! [[ "$2" =~ ^[^/]+/[^/]+$ ]]; then
+			echo "Make sure it Matche the owner/package_name format!"
+			exit 1
+		fi
+		owner="${2%/*}"
+		pkg="${2#*/}"
+		exec python3 "$script_dir/controller.py" remove "$owner" "$pkg"
+	;;
 	list)
 		exec python3 "$script_dir/controller.py" list
 	;;

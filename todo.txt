@@ -1,7 +1,6 @@
 Bugs:
 High Priority {
 	- candidate name not being validated for path manipulation
-	- catch expected download/filesystem/extraction failures at the install boundary;
 	- router curl check: extra round trip, false reporting "doesn't exist" for offline or renamed repos
 	- package ending with .old .bak is ignored
 }
@@ -18,19 +17,18 @@ Features:
 High Priority {
 	- filetype recognization
 	- Return the numeric value to Packages that are up to date
-	- binary lookup -> symlinking -> remove (in that order)
 	- split installpkg into check_latest() and install_release(); return a result enum
 	- per-package try/except in upall
 	- verify checksum (GitHub exposes SHA-256 digests; promoted from Low)
 	- symlinking
 	- last modified / etag remote check
 	- binary lookup
+	- show package name, available version, and status
+	- replace boolean outcomes with an explicit result/status model: UPDATED, UP_TO_DATE, SKIPPED, CANCELLED, FAILED
 }
 
 Low Priority {
 	- add tests for metadata parsing, candidate selection, archive extraction, and transaction rollback
-	- show package name, available version, and status
-	- replace boolean outcomes with an explicit result/status model: UPDATED, UP_TO_DATE, SKIPPED, CANCELLED, FAILED
 	- drop `requests` for urllib
 	- non-interactive mode
 	- lockfile so two grm runs can't race
@@ -64,6 +62,7 @@ bugs {
 
 Features {
 	- list
+	- remove
 	- update only one
 	- url parsing and installation
 	- parse arguments
