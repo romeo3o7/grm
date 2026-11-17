@@ -43,7 +43,23 @@ def upone(owner,pkgname):
 def listpkgs():
     tgPaths , programsdir = rtpkgs()
     for pkgdir in tgPaths:
-        print(pkgdir.name)
+        buildwall()
+        pkg = Package()
+        mdfile = pkgdir / "metafile.grm"
+        try:
+            if not rmd(mdfile,pkg):
+                print(pkgdir.name)
+                print("STATUS = BAD")
+                continue
+
+            print(f"Package = {pkg.name}, ", end="")
+            print("STATUS = GOOD, ",end="" )
+            print(f"Version = {pkg.version}")
+            print(f"Path = {pkgdir}")
+
+        except OSError as err:
+            print(f"wmd: {err}")
+
 
 def pkgremove(owner,pkgname):
     programsdir = getPpath()

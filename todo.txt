@@ -14,13 +14,14 @@ Low Priority {
 --------------------------------------------------------------------------
 Features:
 High Priority {
-	- filetype recognization
-	- verify checksum (GitHub exposes SHA-256 digests)
-	- symlinking
+	- port router.sh to python
+	- replace boolean outcomes with an explicit result/status model
 	- last modified / etag remote check
+	- verify checksum (GitHub exposes SHA-256 digests)
+	- if no releases or tags are found, offer to clone the repo (could be a python repo)
+	- filetype recognization
+	- symlinking
 	- binary lookup
-	- list: show package name, available version, and status
-	- replace boolean outcomes with an explicit result/status model: UPDATED, UP_TO_DATE, SKIPPED, CANCELLED, FAILED
 }
 
 Low Priority {
@@ -58,6 +59,7 @@ bugs {
 }
 
 Features {
+	- list: show package name, available version, and status
 	- list
 	- remove
 	- update only one
