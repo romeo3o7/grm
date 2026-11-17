@@ -19,7 +19,6 @@ def remfileinstall(session,url,dst):
         raise
     return dst
 
-
 def gtlatest(session,url):
     import requests
     try:
@@ -27,12 +26,13 @@ def gtlatest(session,url):
         res.raise_for_status()
         resJson = res.json()
         return resJson
-    except requests.exceptions.JSONDecodeError as e:
-        print(f"Invalid JSON response: {e}")
-        return None
+    except requests.exceptions.ConnectionError as e:
+        print(f"Could not connect to GitHub: {e}")
+    except requests.exceptions.Timeout as e:
+        print(f"GitHub request timed out: {e}")
     except requests.exceptions.RequestException as e:
         print(f"The request failed: {e}")
-        return None
+    return None
 
 def createGHsession():
     import requests

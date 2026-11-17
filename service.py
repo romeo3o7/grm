@@ -1,6 +1,6 @@
 from pathlib import Path
 from lib.metadata import rmd
-from lib.ppath import (rtpkgs,getPpath,sanpkgdir)
+from lib.ppath import (rtpkgs,getPpath)
 from lib.remote import (gtlatest,createGHsession)
 from lib.install import installpkg
 from lib.candidate import selcand
@@ -32,10 +32,11 @@ def upall():
 
 def upone(owner,pkgname):
     programsdir = getPpath()
-    pkgdir = programsdir / f"{pkgname}.{owner}"
+    pkgdir = programsdir / f"{owner}_{pkgname}"
     if not pkgdir.is_dir():
         print("Package Not Found, Use list to see installed Packages")
         return False
+    print(f"Updating {pkgname}..")
     with createGHsession() as session:
         return pkgup(session,programsdir,pkgdir)
 
@@ -46,18 +47,17 @@ def listpkgs():
 
 def pkgremove(owner,pkgname):
     programsdir = getPpath()
-    pkgdir = programsdir / f"{pkgname}.{owner}"
+    pkgdir = programsdir / f"{owner}_{pkgname}"
     if pkgdir.is_dir():
         return deldir(pkgdir)
 
 
 def pkgdownload(owner,pkgname):
     programsdir = getPpath()
-    pkgdir = programsdir / f"{pkgname}.{owner}"
+    pkgdir = programsdir / f"{owner}_{pkgname}"
     if pkgdir.is_dir():
         print("Package already Exists")
         return False
-
     pkg = Package()
     pkg.name = pkgname
     pkg.owner = owner

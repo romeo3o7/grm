@@ -1,10 +1,10 @@
+import sys
 from lib.models import Package
 from pathlib import Path
 
-def sanpkgdir(pkg : Package, programsdir, spackagedir):
-    apackagedir = programsdir / f"{pkg.name}.{pkg.owner}"
+def sansupkg(pkg : Package, programsdir, spackagedir):
+    apackagedir = programsdir / f"{pkg.owner}_{pkg.name}"
     if spackagedir is not None:
-        # supplied vs Actual check
         if spackagedir == apackagedir:
             return spackagedir
     return None
@@ -16,8 +16,15 @@ def cachepath(programsdir):
 
 def getPpath():
     home = Path.home()
-    programsdir = home / "Programs"
-    return programsdir
+    match sys.platform:
+        case "linux":
+            return home / ".local"/ "grm"
+        case "win32":
+            return home / "AppData" / "Local" / "grm"
+        case "darwin":
+            return home / "Applications" / "grm"
+        case _:
+            return None
 
 def rtpkgs():
     programsdir = getPpath()

@@ -1,12 +1,11 @@
 Bugs:
 High Priority {
 	- candidate name not being validated for path manipulation
-	- router curl check: extra round trip, false reporting "doesn't exist" for offline or renamed repos
-	- package ending with .old .bak is ignored
 }
 
 Low Priority {
 	- candidate names accidentally matching package names (retpattern)
+	- session.get hangs on dns lookup ignoring even keyboardIntrrupts (only behind a captive portal);
 	- 403/429 rate limit shows as a generic "request failed"
 	- zip extraction drops the executable bit, files land 0644 (verified)
 	- lib module possible name collison
@@ -16,14 +15,11 @@ Low Priority {
 Features:
 High Priority {
 	- filetype recognization
-	- Return the numeric value to Packages that are up to date
-	- split installpkg into check_latest() and install_release(); return a result enum
-	- per-package try/except in upall
-	- verify checksum (GitHub exposes SHA-256 digests; promoted from Low)
+	- verify checksum (GitHub exposes SHA-256 digests)
 	- symlinking
 	- last modified / etag remote check
 	- binary lookup
-	- show package name, available version, and status
+	- list: show package name, available version, and status
 	- replace boolean outcomes with an explicit result/status model: UPDATED, UP_TO_DATE, SKIPPED, CANCELLED, FAILED
 }
 
@@ -39,25 +35,26 @@ Low Priority {
 --------------------------------------------------------------------------
 Completed:
 bugs {
+	- supplied package dir to installpkg mismatch to its metadata fields; add sanity check by constructing the path
+	- router curl check: false reporting "doesn't exist" for offline or renamed repos; report error for unfound and con issues
+	- package ending with .old .bak is ignored; change format name to owner_package
 	- list shows no versions and imports requests ~200ms; import inside funcs solves this
 	- handle malformed metadata and missing/unreadable metafile.grm per package instead of aborting up_all
-	- non archive file being deleted
+	- non archive file being deleted; confirm with the user
 	- installpkg to update version and asset values
-	- on candidate match, it returns first even though the match might not be first; ; logic bug
+	- on candidate match, it returns first even though the match might not be first;logic bug; return imed
 	- rtpkgs return value inconsistency
-	- stage and old package path remains in some occasions
+	- stage and old package path remains in some occasions; stageold + restorepkg
 	- actins should not delete the old pkg path and mkdir is not needed
-	- duplicate keys in metafile; hash set
+	- malformed keys in metafile; hash set rejecting duplicates + reject unknow keys + missing keys
 	- rename back the old pakage diretory to its original name
-	- .cache file left behind if stagenew fails; cache never pruned
+	- .cache file left behind if stagenew fails;
 	- arg order is pkg/owner while install is owner/pkg
-	- selcand previous-candidate match never fires: case mismatch and the version is in the asset name
 	- rtpkgs lists leftover `.stage` and `.old` dirs as packages
-	- sanpkgdir ignores its supplied-dir argument; reject
-	- remfileinstall bare `except:` swallows Ctrl-C; the update loop carries on to the next package
-	- querying github api on repos that don't exist
+	- sanpkgdir ignores its supplied-dir argument; reject unknow sup
+	- remfileinstall bare `except:` swallows Ctrl-C; catch all, raise back, caller doesn't catch Keyboardintrroupt
+	- querying github api on repos that don't exist; curl owner/repo first
 	- fix extract() result semantics
-	- remfileinstall `except Exception` leaves the partial file on Ctrl-C
 }
 
 Features {
@@ -74,4 +71,5 @@ Features {
 	- install module
 	- Progress bar during installation
 	- lines seprating packages during update
+	- per-package try/except in upall
 }

@@ -6,10 +6,14 @@ from lib.gp import confirmation
 from lib.models import Package
 from lib.remote import remfileinstall
 from lib.metadata import wmd
-from lib.ppath import (cachepath , sanpkgdir)
+from lib.ppath import (cachepath,sansupkg)
 from lib.transaction import (deldir,stagenew,stageold,restorepkg)
 
 def installpkg(session, pkg: Package,programsdir, packagedir):
+    if not sansupkg(pkg,programsdir,packagedir):
+        print("Package path and metadata field mismatch")
+        return False
+
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
     resJson = gtlatest(session, url)
     if resJson is None:
