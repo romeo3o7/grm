@@ -59,6 +59,7 @@ bugs {
 }
 
 Features {
+	- candidate inferer
 	- list: show package name, available version, and status
 	- list
 	- remove

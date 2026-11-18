@@ -25,7 +25,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
     if not confirmation(f"{pkg.name}: Latest Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n/q]:"):
         return True
 
-    candidate = selcand(resJson,pkg.assetName)
+    candidate = selcand(resJson,pkg)
     if candidate is None:
         print("Couldn't find candidate")
         return False
