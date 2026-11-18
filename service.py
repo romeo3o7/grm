@@ -1,6 +1,6 @@
 from pathlib import Path
 from lib.metadata import rmd
-from lib.ppath import (rtpkgs,getPpath)
+from lib.ppath import (rtpkgs,getPpath,sansupkg)
 from lib.remote import (gtlatest,createGHsession)
 from lib.install import installpkg
 from lib.candidate import selcand
@@ -12,7 +12,8 @@ def pkgup(session,programsdir,pkgdir):
     pkg = Package()
     mdfile = pkgdir / "metafile.grm"
     try:
-        if not rmd(mdfile,pkg):
+        if not rmd(mdfile,pkg) or not sansupkg(pkg,programsdir,pkgdir):
+            print(f"Path: {pkgdir}")
             return False
         return installpkg(session,pkg,programsdir,pkgdir)
     except Exception as err:
@@ -43,22 +44,23 @@ def upone(owner,pkgname):
 def listpkgs():
     tgPaths , programsdir = rtpkgs()
     for pkgdir in tgPaths:
-        buildwall()
         pkg = Package()
         mdfile = pkgdir / "metafile.grm"
         try:
-            if not rmd(mdfile,pkg):
-                print(pkgdir.name)
+            if not rmd(mdfile,pkg) or not sansupkg(pkg,programsdir,pkgdir):
+                print(f"Path = {pkgdir}, ", end="")
                 print("STATUS = BAD")
                 continue
 
             print(f"Package = {pkg.name}, ", end="")
             print("STATUS = GOOD, ",end="" )
-            print(f"Version = {pkg.version}")
-            print(f"Path = {pkgdir}")
+            print(f"Version = {pkg.version}, " , end="")
+            print(f"Direcoty = {pkgdir.name}")
 
         except OSError as err:
             print(f"wmd: {err}")
+
+        finally: buildwall()
 
 
 def pkgremove(owner,pkgname):

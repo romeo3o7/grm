@@ -7,6 +7,8 @@ def sansupkg(pkg : Package, programsdir, spackagedir):
     if spackagedir is not None:
         if spackagedir == apackagedir:
             return spackagedir
+
+    print("metadata information and directory mismatch.\nPossible malformed md file or Directory name was modifed")
     return None
 
 def cachepath(programsdir):

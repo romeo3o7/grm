@@ -15,10 +15,7 @@ def confirmation(msg,prompt):
 def buildwall():
     twindowsize = shutil.get_terminal_size()
     width = twindowsize.columns
-
-    wall = width // 2
-
-    for i in range(wall):
+    wall = width * 0.75
+    for i in range(int(wall)):
         print("-", end="")
-
-    print("|")
+    print()

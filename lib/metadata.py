@@ -71,7 +71,7 @@ def rmd(fpath, p : Package):
                     break
 
     if not p.owner or not p.version or not p.name:
-        print(f"Important Fields are Missing")
+        print("Important Fields are Missing")
         grmfileErr = True
 
     if grmfileErr == True:
