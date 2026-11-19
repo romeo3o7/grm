@@ -9,30 +9,31 @@ from lib.metadata import wmd
 from lib.ppath import (cachepath,sansupkg,malfile)
 from lib.transaction import (deldir,stagenew,stageold,restorepkg)
 
+# 0 = updated, 1 = failed, 2 = utd, 3 = canceled
 def installpkg(session, pkg: Package,programsdir, packagedir):
     url = f"https://api.github.com/repos/{pkg.owner}/{pkg.name}/releases/latest"
     resJson = gtlatest(session, url)
     if resJson is None:
-        return False
+        return 1
 
     remoteVersion = resJson.get("tag_name")
     if not remoteVersion:
         print("could not get latest version")
-        return False
+        return 1
     if pkg.version != "" and remoteVersion == pkg.version:
-        return True
+        return 2
 
     if not confirmation(f"{pkg.name}: Latest Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n/q]:"):
-        return True
+        return 3
 
     candidate = selcand(resJson,pkg)
     if candidate is None:
         print("Couldn't find candidate")
-        return False
+        return 1
     candname = candidate["name"]
     if malfile(candname):
         print("Bad file name. Rejecting remote installation")
-        return False
+        return 1
     candsize = candidate["size"]
     candtype = candidate["content_type"]
     candurl = candidate["browser_download_url"]
@@ -44,18 +45,18 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
     cpath = cachepath(programsdir)
     tfilepath = cpath / candname
     if not remfileinstall(session,candurl,tfilepath):
-        return False
+        return 1
     filesize = tfilepath.stat().st_size
     if filesize != candsize:
         print(f"data lost, size of temp: {filesize}, size of installed file specifed by gh: {candsize}")
         tfilepath.unlink()
-        return False
+        return 1
 
     # transaction .stage dir to move the installed file to
     stagedir = stagenew(packagedir, tfilepath, candname)
     if not stagedir:
         tfilepath.unlink()
-        return False
+        return 1
 
     pkg.assetName = candname
     pkg.version = remoteVersion
@@ -83,7 +84,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
     except OSError as exc:
         print(f"Installation failed: {exc}")
         restorepkg(oldpkgdir, packagedir)
-        return False
+        return 1
     finally:
         deldir(stagedir)
 
@@ -91,4 +92,4 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
         deldir(oldpkgdir)
 
     print(f"DONE, {pkg.name} is Installed")
-    return True
+    return 0

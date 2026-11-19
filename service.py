@@ -14,22 +14,41 @@ def pkgup(session,programsdir,pkgdir):
     try:
         if not rmd(mdfile,pkg) or not sansupkg(pkg,programsdir,pkgdir):
             print(f"Path: {pkgdir}")
-            return False
+            return 1
         return installpkg(session,pkg,programsdir,pkgdir)
     except Exception as err:
         print(err)
-        return False
+        return 1
 
 def upall():
     print("Updating and loading repositories:")
-    fails = 0
     tgPaths , programsdir = rtpkgs()
+    updated = failed = utd = canceled = 0
     with createGHsession() as session:
         for pkgdir in tgPaths:
-            if not pkgup(session,programsdir,pkgdir):
-                fails += 1
-                continue
-        return fails
+            status = pkgup(session,programsdir,pkgdir)
+            match status:
+                case 0:
+                    updated += 1
+                case 1:
+                    failed += 1
+                case 2:
+                    utd += 1
+                case 3:
+                    canceled += 1
+
+    print()
+    if updated > 0:
+        print(f"{updated} Program/s were updated")
+    if utd > 0:
+        print(f"{utd}/{len(tgPaths)} Program/s are up to date")
+    if canceled > 0 :
+        print(f"{canceled} Program/s were cancled by the user")
+    if failed > 0:
+        print(f"{failed} Program/s Failed")
+        return False
+
+    return True
 
 def upone(owner,pkgname):
     programsdir = getPpath()
@@ -43,6 +62,8 @@ def upone(owner,pkgname):
 
 def listpkgs():
     tgPaths , programsdir = rtpkgs()
+    print(f"Packages = {len(tgPaths)}")
+    buildwall(0.50)
     for pkgdir in tgPaths:
         pkg = Package()
         mdfile = pkgdir / "metafile.grm"
@@ -60,7 +81,7 @@ def listpkgs():
         except OSError as err:
             print(f"wmd: {err}")
 
-        finally: buildwall()
+        finally: buildwall(0.75)
 
 
 def pkgremove(owner,pkgname):
