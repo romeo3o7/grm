@@ -15,8 +15,9 @@ def main():
         if argsize > 3:
             owner = sys.argv[2]
             pkgname = sys.argv[3]
-            if not pkgdownload(owner,pkgname):
+            if pkgdownload(owner,pkgname):
                 sys.exit(1)
+            sys.exit()
 
     elif cmd == "remove":
         if argsize > 3:
@@ -24,22 +25,20 @@ def main():
             pkgname = sys.argv[3]
             if not pkgremove(owner,pkgname):
                 sys.exit(1)
-            print("Deleted.")
-
-    elif cmd == "up_all":
-        fails = upall()
-        if fails == 0:
             sys.exit()
 
-        print(f"{fails} Programs updating process falied")
+    elif cmd == "up_all":
+        if upall():
+            sys.exit()
         sys.exit(1)
 
     elif cmd == "up_one":
         if argsize > 3:
             owner = sys.argv[2]
             pkgname = sys.argv[3]
-            if not upone(owner,pkgname):
+            if upone(owner,pkgname):
                 sys.exit(1)
+            sys.exit()
 
 if __name__ == "__main__":
     try:

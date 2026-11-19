@@ -12,10 +12,12 @@ def confirmation(msg,prompt):
         if reply == 'q':
             raise SystemExit()
 
-def buildwall():
+def buildwall(wallwidith):
+    if wallwidith > 1 and wallwidith < 0:
+        return None
     twindowsize = shutil.get_terminal_size()
     width = twindowsize.columns
-    wall = width * 0.75
+    wall = width * wallwidith
     for i in range(int(wall)):
         print("-", end="")
     print()
