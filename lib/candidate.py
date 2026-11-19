@@ -1,13 +1,20 @@
 from lib.gp import confirmation
 
-def selcand(json,prevcand: str | None = None):
+def selcand(json,pkg):
     candidates = []
+    latestVersion = json.get("tag_name")
+    candguess = candinferrer(pkg,latestVersion)
+    prevcand = pkg.assetName
     patterns, ext = retpattern()
 
     for asset in json["assets"]:
         currentAsset = asset["name"].lower()
         if prevcand is not None and currentAsset == prevcand.lower():
-            if confirmation(f"Previous candidate seems to match -> {prevcand}\nUse it?", "[y/n]"):
+            if confirmation(f"Previous candidate -> {prevcand}\nUse it?", "[y/n]"):
+                return asset
+
+        if candguess is not None and currentAsset ==  candguess.lower():
+            if confirmation(f"Guessed candidate -> {candguess}\nUse it?", "[y/n]"):
                 return asset
 
         if currentAsset.endswith(tuple(ext)):
@@ -16,7 +23,7 @@ def selcand(json,prevcand: str | None = None):
         append = True
         for pattern in patterns:
             # if pattern is found, Asset is useless
-            if pattern in currentAsset.lower():
+            if pattern in currentAsset:
                 append = False
                 break
         if append:
@@ -34,9 +41,21 @@ def selcand(json,prevcand: str | None = None):
             index = int(reply)
             if 1 <= index <= len(candidates):
                 thechosenone = candidates[index-1]
-                if confirmation(f"you have choosen: {thechosenone["name"]}, is that ok?" , "[y/n]:"):
+                if confirmation(f"you have choosen: {thechosenone['name']}, is that ok?" , "[y/n]:"):
                     break
     return thechosenone
+
+def candinferrer(pkg,latestVersion):
+    if pkg.assetName == "" or pkg.version == "":
+        return None
+    prevcand = pkg.assetName
+    latestVersion = latestVersion.removeprefix("v")
+    preversion = pkg.version.removeprefix("v")
+    prefixLength = prevcand.find(preversion)
+    if prefixLength == -1:
+        return None
+    suffixStart = prefixLength + len(preversion)
+    return prevcand[:prefixLength] + latestVersion + prevcand[suffixStart:]
 
 def retpattern():
     import platform

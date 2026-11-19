@@ -1,6 +1,5 @@
 Bugs:
 High Priority {
-	- candidate name not being validated for path manipulation
 }
 
 Low Priority {
@@ -36,6 +35,7 @@ Low Priority {
 --------------------------------------------------------------------------
 Completed:
 bugs {
+	- candidate name not being validated for path manipulation
 	- supplied package dir to installpkg mismatch to its metadata fields; add sanity check by constructing the path
 	- router curl check: false reporting "doesn't exist" for offline or renamed repos; report error for unfound and con issues
 	- package ending with .old .bak is ignored; change format name to owner_package
@@ -59,6 +59,7 @@ bugs {
 }
 
 Features {
+	- candidate inferer
 	- list: show package name, available version, and status
 	- list
 	- remove

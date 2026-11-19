@@ -6,7 +6,7 @@ from lib.gp import confirmation
 from lib.models import Package
 from lib.remote import remfileinstall
 from lib.metadata import wmd
-from lib.ppath import (cachepath,sansupkg)
+from lib.ppath import (cachepath,sansupkg,malfile)
 from lib.transaction import (deldir,stagenew,stageold,restorepkg)
 
 def installpkg(session, pkg: Package,programsdir, packagedir):
@@ -25,11 +25,14 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
     if not confirmation(f"{pkg.name}: Latest Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n/q]:"):
         return True
 
-    candidate = selcand(resJson,pkg.assetName)
+    candidate = selcand(resJson,pkg)
     if candidate is None:
         print("Couldn't find candidate")
         return False
     candname = candidate["name"]
+    if malfile(candname):
+        print("Bad file name. Rejecting remote installation")
+        return False
     candsize = candidate["size"]
     candtype = candidate["content_type"]
     candurl = candidate["browser_download_url"]
