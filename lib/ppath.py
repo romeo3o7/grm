@@ -1,6 +1,15 @@
-import sys
 from lib.models import Package
 from pathlib import Path
+import sys
+
+def malfile(name):
+    if not name or name in (".", "..") or len(name.encode("utf-8")) > 255:
+        return True
+
+    if "/" in name or "\0" in name:
+        return True
+
+    return False
 
 def sansupkg(pkg : Package, programsdir, spackagedir):
     apackagedir = programsdir / f"{pkg.owner}_{pkg.name}"

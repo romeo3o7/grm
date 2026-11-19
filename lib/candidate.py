@@ -10,11 +10,11 @@ def selcand(json,pkg):
     for asset in json["assets"]:
         currentAsset = asset["name"].lower()
         if prevcand is not None and currentAsset == prevcand.lower():
-            if confirmation(f"Previous candidate seems to match -> {prevcand}\nUse it?", "[y/n]"):
+            if confirmation(f"Previous candidate -> {prevcand}\nUse it?", "[y/n]"):
                 return asset
 
         if candguess is not None and currentAsset ==  candguess.lower():
-            if confirmation(f"Guessed candidate seems to match -> {candguess}\nUse it?", "[y/n]"):
+            if confirmation(f"Guessed candidate -> {candguess}\nUse it?", "[y/n]"):
                 return asset
 
         if currentAsset.endswith(tuple(ext)):
@@ -41,18 +41,19 @@ def selcand(json,pkg):
             index = int(reply)
             if 1 <= index <= len(candidates):
                 thechosenone = candidates[index-1]
-                if confirmation(f"you have choosen: {thechosenone["name"]}, is that ok?" , "[y/n]:"):
+                if confirmation(f"you have choosen: {thechosenone['name']}, is that ok?" , "[y/n]:"):
                     break
     return thechosenone
 
 def candinferrer(pkg,latestVersion):
+    if pkg.assetName == "" or pkg.version == "":
+        return None
     prevcand = pkg.assetName
     latestVersion = latestVersion.removeprefix("v")
     preversion = pkg.version.removeprefix("v")
     prefixLength = prevcand.find(preversion)
     if prefixLength == -1:
         return None
-
     suffixStart = prefixLength + len(preversion)
     return prevcand[:prefixLength] + latestVersion + prevcand[suffixStart:]
 
