@@ -16,16 +16,16 @@ def main():
             owner = sys.argv[2]
             pkgname = sys.argv[3]
             if pkgdownload(owner,pkgname):
-                sys.exit(1)
-            sys.exit()
+                sys.exit()
+            sys.exit(1)
 
     elif cmd == "remove":
         if argsize > 3:
             owner = sys.argv[2]
             pkgname = sys.argv[3]
-            if not pkgremove(owner,pkgname):
-                sys.exit(1)
-            sys.exit()
+            if pkgremove(owner,pkgname):
+                sys.exit()
+            sys.exit(1)
 
     elif cmd == "up_all":
         if upall():
@@ -37,8 +37,8 @@ def main():
             owner = sys.argv[2]
             pkgname = sys.argv[3]
             if upone(owner,pkgname):
-                sys.exit(1)
-            sys.exit()
+                sys.exit()
+            sys.exit(1)
 
 if __name__ == "__main__":
     try:

@@ -9,11 +9,9 @@ def confirmation(msg,prompt):
             return True
         if reply == 'n':
             return False
-        if reply == 'q':
-            raise SystemExit()
 
 def buildwall(wallwidith):
-    if wallwidith > 1 and wallwidith < 0:
+    if wallwidith > 1 or wallwidith < 0:
         return None
     twindowsize = shutil.get_terminal_size()
     width = twindowsize.columns

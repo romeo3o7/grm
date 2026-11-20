@@ -22,7 +22,7 @@ def installpkg(session, pkg: Package,programsdir, packagedir):
     if pkg.version != "" and remoteVersion == pkg.version:
         return InstallStatus.UTD
 
-    if not confirmation(f"{pkg.name}: Latest Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n/q]:"):
+    if not confirmation(f"{pkg.name}: Latest Version Found: {remoteVersion}\nDo You Wish to Procced With The Installation?" , "[y/n]:"):
         return InstallStatus.SKIP
 
     candidate = selcand(resJson,pkg)

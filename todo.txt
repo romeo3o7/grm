@@ -35,7 +35,9 @@ Low Priority {
 --------------------------------------------------------------------------
 Completed:
 bugs {
-	- candidate name not being validated for path manipulation
+	- programsdir could be none reporting "package already exists" in pkgdownload; guard check
+	- confirmation q on extraction creates a leaf in .stage and no md file; confirm shouldn't exit
+	- candidate name not being validated for path manipulation; malfile
 	- supplied package dir to installpkg mismatch to its metadata fields; add sanity check by constructing the path
 	- router curl check: false reporting "doesn't exist" for offline or renamed repos; report error for unfound and con issues
 	- package ending with .old .bak is ignored; change format name to owner_package

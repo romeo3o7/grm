@@ -65,18 +65,18 @@ def upone(owner,pkgname):
             print("Program is updated")
         case InstallStatus.FAIL:
             print("Program Failed to update")
-            return 1
+            return False
         case InstallStatus.UTD:
             print("Program Up to date")
         case InstallStatus.SKIP:
             print("You skipped, why?")
 
-    return 0
+    return True
 
 def listpkgs():
     tgPaths , programsdir = rtpkgs()
     print(f"Packages = {len(tgPaths)}")
-    buildwall(0.50)
+    buildwall(0.10)
     for pkgdir in tgPaths:
         pkg = Package()
         mdfile = pkgdir / "metafile.grm"
@@ -91,7 +91,7 @@ def listpkgs():
             print(f"Version = {pkg.version}, " , end="")
             print(f"Direcoty = {pkgdir.name}")
 
-        except OSError as err:
+        except Exception as err:
             print(f"wmd: {err}")
 
         finally: buildwall(0.75)
@@ -111,6 +111,9 @@ def pkgremove(owner,pkgname):
 
 def pkgdownload(owner,pkgname):
     programsdir = getPpath()
+    if not programsdir.is_dir():
+        print("Failed to locate Programs dir")
+        return False
     pkgdir = programsdir / f"{owner}_{pkgname}"
     if pkgdir.is_dir():
         print("Package already Exists")
@@ -126,8 +129,8 @@ def pkgdownload(owner,pkgname):
             print("Program is installed")
         case InstallStatus.FAIL:
             print("Failed to install")
-            return 1
+            return False
         case InstallStatus.SKIP:
             print("You skipped, why?")
 
-    return 0
+    return True
